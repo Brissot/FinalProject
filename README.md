@@ -4,6 +4,18 @@ author: Lauren Hamilton, Sid Su, Naaman Trumbull
 date: May 9, 2024
 ---
 
+**Submitted by:** Sid Su (directory id: sidsu)
+
+**Group Members:** Sid Su (sidsu), Naaman Trumbull (trumbull), Lauren Hamilton (
+
+**App Description:** idk man
+
+**YouTube Video Link:** https://youtube.com/
+
+**APIs:**
+
+**Contact Email:** sidsu@terpmail.umd.edu
+
 ### Synopsis
 
 CMSC335 :D
