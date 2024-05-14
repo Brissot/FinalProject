@@ -18,6 +18,34 @@ const username= process.env.MONGO_DB_USERNAME;
 const password= process.env.MONGO_DB_PASSWORD;
 const dbName= process.env.MONGO_DB_NAME;
 const collectionName= process.env.MONGO_COLLECTION;
+const apiKey= process.env.CFB_API_KEY;
+
+/* api stuff  */
+var cfb = require('cfb.js');
+
+var defaultClient = cfb.ApiClient.instance;
+
+// Configure API key authorization: ApiKeyAuth
+var ApiKeyAuth = defaultClient.authentications['ApiKeyAuth'];
+ApiKeyAuth.apiKey = `Bearer ${apiKey}`;
+
+var api = new cfb.BettingApi()
+
+var opts = { 
+  'gameId': 56, // {Number} Game id filter
+  'year': 56, // {Number} Year/season filter for games
+  'week': 56, // {Number} Week filter
+  'seasonType': "regular", // {String} Season type filter (regular or postseason)
+  'team': "team_example", // {String} Team
+  'home': "home_example", // {String} Home team filter
+  'away': "away_example", // {String} Away team filter
+  'conference': "conference_example" // {String} Conference abbreviation filter
+};
+api.getLines(opts).then(function(data) {
+  console.log('API called successfully. Returned data: ' + data);
+}, function(error) {
+  console.error(error);
+});
 
 const { symbolicEqual }= require('mathjs');
 console.log(symbolicEqual("tan(x)", "sin(x)/cos(x)"));
