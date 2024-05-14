@@ -6,7 +6,7 @@ date: May 9, 2024
 
 **Submitted by:** Sid Su (directory id: sidsu)
 
-**Group Members:** Sid Su (sidsu), Naaman Trumbull (trumbull), Lauren Hamilton (
+**Group Members:** Sid Su (sidsu), Naaman Trumbull (trumbull), Lauren Hamilton (lhamilt3)
 
 **App Description:** idk man
 
