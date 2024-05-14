@@ -21,30 +21,43 @@ const collectionName= process.env.MONGO_COLLECTION;
 const apiKey= process.env.CFB_API_KEY;
 
 /* api stuff  */
-var cfb = require('cfb.js');
+const cfb= require('cfb.js');
 
-var defaultClient = cfb.ApiClient.instance;
+const defaultClient= cfb.ApiClient.instance;
 
 // Configure API key authorization: ApiKeyAuth
-var ApiKeyAuth = defaultClient.authentications['ApiKeyAuth'];
-ApiKeyAuth.apiKey = `Bearer ${apiKey}`;
+let ApiKeyAuth= defaultClient.authentications['ApiKeyAuth'];
+ApiKeyAuth.apiKey= `Bearer ${apiKey}`;
 
-var api = new cfb.BettingApi()
+let bettingApi= new cfb.BettingApi();
 
 var opts = { 
-  'gameId': 56, // {Number} Game id filter
-  'year': 56, // {Number} Year/season filter for games
-  'week': 56, // {Number} Week filter
-  'seasonType': "regular", // {String} Season type filter (regular or postseason)
-  'team': "team_example", // {String} Team
-  'home': "home_example", // {String} Home team filter
-  'away': "away_example", // {String} Away team filter
-  'conference': "conference_example" // {String} Conference abbreviation filter
+    'year': 2023,
+    'team': "Maryland",
 };
-api.getLines(opts).then(function(data) {
-  console.log('API called successfully. Returned data: ' + data);
+
+bettingApi.getLines(opts).then(function(data) {
+    console.log('API called successfully. Returned data: ' + data);
+    for (const x of data) {
+	console.log(x);
+    }
 }, function(error) {
   console.error(error);
+});
+
+/* this part doesn't work ;( */
+var apiInstance= new cfb.TeamsApi();
+var newOpts = { 
+    'year': 23
+};
+
+apiInstance.getFbsTeams(opts).then(function(data) {
+    console.log('API called successfully. Returned data: ' + data);
+    for (const x of data) {
+	console.log(x);
+    }
+}, function(error) {
+    console.error("uh oh", error);
 });
 
 const { symbolicEqual }= require('mathjs');
