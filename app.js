@@ -14,13 +14,18 @@ require("dotenv").config({
 })  
 
 /* Get the Environmental Variables out */
-//const collectionName= process.env.MONGO_COLLECTION; /* for syntax */
+const username= process.env.MONGO_DB_USERNAME;
+const password= process.env.MONGO_DB_PASSWORD;
+const dbName= process.env.MONGO_DB_NAME;
+const collectionName= process.env.MONGO_COLLECTION;
 
-
+const { symbolicEqual }= require('mathjs');
+console.log(symbolicEqual("tan(x)", "sin(x)/cos(x)"));
+console.log(symbolicEqual("cos(x)^2 + sin(x)^2", "1"));
+console.log(symbolicEqual("x^2 + x + 1", "1 + x + x^2"));
 /*
   Website Logic goes here
 */
-
 
 /*
 express stuff 
@@ -34,7 +39,11 @@ app.set("views", path.resolve(__dirname, "templates"));
 /* view/templating engine */
 app.set("view engine", "ejs");
 
-app.get("/", (request, response) => {{response.render("index")}});
+app.get("/", (request, response) => {
+    
+    variables= {mathProblem: "x^2 + 2x + 1"};
+    response.render("index", variables);
+});
 
 
 /*
