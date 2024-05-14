@@ -26,6 +26,6 @@ CMSC335 :D
 
 **Express:** We have chosen to use express.js because we are required to
 
-**Data Place:** Data comes from <place>
+**API:** We have decided to use the API `cfb.js`. This can be found [here](https://collegefootballdata.com/), and documentation for the API can be found on [the website](https://api.collegefootballdata.com/api/docs/?url=/api-docs.json) and the [npm website](https://www.npmjs.com/package/cfb.js?activeTab=readme).
 
 ### Notes
