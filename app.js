@@ -24,7 +24,11 @@ const cfbRequests= require("./cfbRequests");
 let cfbRadio= new cfbRequests.cfbRequests(apiKey);
 let data;
 cfbRadio.getBets(2023, "Maryland")
-    .then(data => console.log(data))
+    .then(data => {
+	for (let game of data) {
+	    console.log("here", game.homeConference);
+	}
+    })
     .catch(error => console.error(error));
 console.log(data);
 
@@ -35,6 +39,39 @@ console.log(symbolicEqual("x^2 + x + 1", "1 + x + x^2"));
 /*
   Website Logic goes here
 */
+
+/**
+   Creates a table with headers and data.
+
+   headers: it's a list of strings. Don't overthink it. Though this is what we
+   use in order to get the number of columns.
+
+   data: a list of lists of strings.
+ */
+function createTable(headers, data) {
+    const strInnerHead= headers.reduce(
+	(acc, header) => acc + "<th>" + header + "</th>", "");
+    const strHead= "<thead><tr>" + strInnerHead + "</tr></thead>";
+
+
+    let strBody= "<tbody>";
+    for (let i= 0; i < data[0].length; i++) {
+	strBody= strBody + "<tr>";
+	for (let j= 0; j < headers.length; j++) {
+	    strBody= strBody + "<td>" + data[j][i] +"</td>";
+	}
+	strBody= strBody + "</tr>";
+    }
+    strBody= strBody + "</tbody>";
+
+    let strTable= "<table>" + strHead + strBody + "</table>";
+
+    return strTable;
+}
+
+/* test of createTable() */
+// t= createTable(["hi", "hii", "hiii"], [["hello","hallo"], ["hey","heyy"],["sup","suh"]]);
+// console.log(t);
 
 /*
 express stuff 
