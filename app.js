@@ -37,7 +37,7 @@ let many = new cfbRequests.cfbRequests(apiKey);
 many.getMatchups("Penn State", "Maryland")
     .then(info => console.log(info))
     .catch(error => console.error(error));
-console.log(info);
+
 
 
 const { symbolicEqual }= require('mathjs');

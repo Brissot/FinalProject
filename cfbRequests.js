@@ -51,23 +51,36 @@ class cfbRequests {
 
 
 	async getMatchups(team1, team2) {
-		const opts = { 'minYear': 1869, 'maxYear': 2023}
+		const opts = { 'minYear': 1869, 'maxYear': 2023 }
 
 		try {
 			let data = await this.matchupApi.getTeamMatchup(team1, team2, opts);
-
-			console.log(data);
-			return data;
+			return this.formatGames(data.games)
 		}
+
 		catch (error) {
 			throw ("failed to retreive from drives api", error);
 		}
 	}
 
-    formatGames(rawData) {
-	for (let game of rawData) {
+	formatGames(rawData) {
+		if (rawData.length != 0) {
+			let dictionary = {};
+			console.log(Object.keys(rawData[0]));
+			for (let key of Object.keys(rawData[0])) {
+				dictionary[key] = [];
+			}
+			for (let game in rawData) {
+				for (let key in Object.keys(dictionary[0])) {
+					dictionary[key].add(game[key]);
+				}
+			}
+			return dictionary;
+
+		} else {
+			return {};
+		}
 	}
-    }
 }
 
 module.exports = { cfbRequests };
