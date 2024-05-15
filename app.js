@@ -84,6 +84,7 @@ function createTable(headers, data) {
 mongoDB stuff
 */
 const {MongoClient, ServerApiVersion}= require('mongodb');
+const databaseAndCollection = {db: dbName, collection: collectionName};
 const uri= "mongodb+srv://" +
            username + ":" + password +
            "@sid-su.eczia3i.mongodb.net/" +
@@ -110,7 +111,7 @@ async function ping() {
   }
   finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 ping().catch(console.dir);
@@ -136,6 +137,8 @@ express stuff
 const express= require("express"); /* Accessing express module */
 const app= express(); /* app is a request handler function */
 app.use(express.static('css')); /* for css */
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended:false}));
 
 /* directory where templates will reside */
 app.set("views", path.resolve(__dirname, "templates"));
@@ -150,10 +153,18 @@ app.get("/teamStats", (request, response) => {
   response.render("teamStats");
 });
 
-app.post("/teamStats", (request, response) => {
+app.post("/teamStats", async (request, response) => {
+  let {team, year} = request.body;
   variables = {
-    
+    team: team,
+    year: year,
+    stats: ""
   }
+  request = {
+    name: `Stats for ${team} in ${year}`,
+    data: variables.stats
+  }
+  await addRequest(client, databaseAndCollection, request);
   response.render("teamStatsResults", variables);
 });
 
@@ -161,18 +172,36 @@ app.get("/teamHistory", (request, response) => {
   response.render("teamHistory");
 });
 
-app.post("/teamHistory", (request, response) => {
-  response.render("teamHistoryResults");
+app.post("/teamHistory", async (request, response) => {
+  let {team1, team2} = request.body;
+  variables = {
+    team1: team1,
+    team2: team2,
+    summary: "",
+    data: ""
+  }
+  request = {
+    name: `${team1} vs ${team2} History`,
+    data: `${variables.summary}<br>${variables.data}`
+  }
+  await addRequest(client, databaseAndCollection, request)
+  response.render("teamHistoryResults", variables);
 });
 
-app.get("/searchHistory", (request, response) => {
-  response.render("searchHistory");
+app.get("/searchHistory", async (request, response) => {
+  variables = {
+    searches: await getSearchHistory(client, databaseAndCollection)
+  }
+  response.render("searchHistory", variables);
 });
 
-/*
-  Add more routes here
-*/
-
+app.post("/searchHistory", async (request, response) => {
+  await clearSearchHistory(client, databaseAndCollection);
+  variables = {
+    searches: ""
+  }
+  response.render("searchHistory", variables);
+});
 
 /* start express :) */
 app.listen(portNumber, (err) => {
@@ -207,3 +236,32 @@ process.stdin.on('readable', () => {  /* on() equivalent to addEventListener */
   process.stdout.write(prompt);
   process.stdin.resume();
 });
+
+/*
+MongoDB functions
+*/
+
+async function clearSearchHistory(client, databaseAndCollection) {
+  const result = await client.db(databaseAndCollection.db)
+      .collection(databaseAndCollection.collection)
+      .deleteMany({});
+  return result.deletedCount;
+}
+
+async function getSearchHistory(client, databaseAndCollection) {
+  let filter = {};
+  const cursor = client.db(databaseAndCollection.db)
+  .collection(databaseAndCollection.collection)
+  .find(filter);
+        
+  const result = await cursor.toArray();
+  let searchResults = "";
+  for (let r of result) {
+    searchResults += `<h3>${r.name}<h3><p>${r.data}</p>`;
+  }
+  return result;
+}
+
+async function addRequest(client, databaseAndCollection, request) {
+  await client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).insertOne(request);
+}
