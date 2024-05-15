@@ -1,3 +1,29 @@
 html {
     font-size: 12px;
+    background-image: url("field.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    opacity: 0.7;
+}
+
+h1 {
+    font-size: 100px;
+    text-align: center;
+    opacity: 1;
+}
+
+.footer {
+    width: 256px;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0;
+    background-color: white;
+}
+
+.links {
+    text-align: center;
+    font-size: 48px;
 }
