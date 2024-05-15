@@ -11,7 +11,7 @@ const hostname= "localhost";
 const path= require("path");
 require("dotenv").config({
   path: path.resolve(__dirname, '.env')
-})  
+})  ;
 
 /* Get the Environmental Variables out */
 const username= process.env.MONGO_DB_USERNAME;
@@ -20,45 +20,13 @@ const dbName= process.env.MONGO_DB_NAME;
 const collectionName= process.env.MONGO_COLLECTION;
 const apiKey= process.env.CFB_API_KEY;
 
-/* api stuff  */
-const cfb= require('cfb.js');
-
-const defaultClient= cfb.ApiClient.instance;
-
-// Configure API key authorization: ApiKeyAuth
-let ApiKeyAuth= defaultClient.authentications['ApiKeyAuth'];
-ApiKeyAuth.apiKey= `Bearer ${apiKey}`;
-
-let bettingApi= new cfb.BettingApi();
-
-var opts = { 
-    'year': 2023,
-    'team': "Maryland",
-};
-
-bettingApi.getLines(opts).then(function(data) {
-    console.log('API called successfully. Returned data: ' + data);
-    for (const x of data) {
-	console.log(x);
-    }
-}, function(error) {
-  console.error(error);
-});
-
-/* this part doesn't work ;( */
-var apiInstance= new cfb.TeamsApi();
-var newOpts = { 
-    'year': 23
-};
-
-apiInstance.getFbsTeams(opts).then(function(data) {
-    console.log('API called successfully. Returned data: ' + data);
-    for (const x of data) {
-	console.log(x);
-    }
-}, function(error) {
-    console.error("uh oh", error);
-});
+const cfbRequests= require("./cfbRequests");
+let cfbRadio= new cfbRequests.cfbRequests(apiKey);
+let data;
+cfbRadio.getBets(2023, "Maryland")
+    .then(data => console.log(data))
+    .catch(error => console.error(error));
+console.log(data);
 
 const { symbolicEqual }= require('mathjs');
 console.log(symbolicEqual("tan(x)", "sin(x)/cos(x)"));
