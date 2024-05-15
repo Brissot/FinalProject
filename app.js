@@ -11,14 +11,14 @@ const hostname= "localhost";
 const path= require("path");
 require("dotenv").config({
   path: path.resolve(__dirname, '.env')
-})  ;
+});
 
 /* Get the Environmental Variables out */
-const username= process.env.MONGO_DB_USERNAME;
-const password= process.env.MONGO_DB_PASSWORD;
-const dbName= process.env.MONGO_DB_NAME;
-const collectionName= process.env.MONGO_COLLECTION;
-const apiKey= process.env.CFB_API_KEY;
+const username = process.env.MONGO_DB_USERNAME;
+const password = process.env.MONGO_DB_PASSWORD;
+const dbName = process.env.MONGO_DB_NAME;
+const collectionName = process.env.MONGO_COLLECTION;
+const apiKey = process.env.CFB_API_KEY;
 
 const cfbRequests= require("./cfbRequests");
 let cfbRadio= new cfbRequests.cfbRequests(apiKey);
@@ -31,6 +31,14 @@ cfbRadio.getBets(2023, "Maryland")
     })
     .catch(error => console.error(error));
 console.log(data);
+
+let info;
+let many = new cfbRequests.cfbRequests(apiKey);
+many.getMatchups("Penn State", "Maryland")
+    .then(info => console.log(info))
+    .catch(error => console.error(error));
+console.log(info);
+
 
 const { symbolicEqual }= require('mathjs');
 console.log(symbolicEqual("tan(x)", "sin(x)/cos(x)"));
