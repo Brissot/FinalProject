@@ -8,14 +8,9 @@
     </head>
 
     <body>
-        <h1>Get Stats by Team</h1>
+        <h1><%- team %> <%- year %> Stats</h1>
 
-        <form method="post">
-            Team: <input type="text" name="team" value="Maryland">
-            Year: <input type="text" name="year" value="2024"><br>
-            <input type="reset">
-            <button type="submit">Get Team Stats</button>
-        </form><br>
+        <%- stats %>
 
         <footer>
             <a href="/"><img src="./band.jpeg" alt="band" class="footer"></a>
