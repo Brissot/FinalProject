@@ -48,6 +48,10 @@ class cfbRequests {
 	}
     }
 
+    formatGames(rawData) {
+	for (let game of rawData) {
+	}
+    }
 }
 
 module.exports= { cfbRequests };
