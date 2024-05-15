@@ -26,18 +26,17 @@ let data;
 cfbRadio.getBets(2023, "Maryland")
     .then(data => {
 	for (let game of data) {
-	    console.log("here", game.homeConference);
+	    console.log("here", game);
 	}
     })
     .catch(error => console.error(error));
-console.log(data);
 
-let info;
-let many = new cfbRequests.cfbRequests(apiKey);
-many.getMatchups("Penn State", "Maryland")
-    .then(info => console.log(info))
-    .catch(error => console.error(error));
-console.log(info);
+// let info;
+// let many = new cfbRequests.cfbRequests(apiKey);
+// many.getMatchups("Penn State", "Maryland")
+//     .then(info => console.log(info))
+//     .catch(error => console.error(error));
+// console.log(info);
 
 
 const { symbolicEqual }= require('mathjs');
@@ -80,6 +79,56 @@ function createTable(headers, data) {
 /* test of createTable() */
 // t= createTable(["hi", "hii", "hiii"], [["hello","hallo"], ["hey","heyy"],["sup","suh"]]);
 // console.log(t);
+
+/*
+mongoDB stuff
+*/
+const {MongoClient, ServerApiVersion}= require('mongodb');
+const uri= "mongodb+srv://" +
+           username + ":" + password +
+           "@sid-su.eczia3i.mongodb.net/" +
+           "?retryWrites=true&w=majority&appName=Sid-Su";
+
+/* Create a MongoClient with a MongoClientOptions object to set the Stable API
+  version */
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+/* Ping the server*/
+async function ping() {
+  try {
+    // Connect the client to the server (optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db(dbName).command({ ping: 1 });
+    console.log("MongoDB Connection Successful!");
+  }
+  finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+ping().catch(console.dir);
+
+async function insertApplicant(client, applicant) {
+  try {
+    const db= await client.db(dbName);
+    const collection= await db.collection(collectionName);
+
+    const result= await collection.insertOne(applicant);
+
+    return result
+  }
+  finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
 
 /*
 express stuff 
