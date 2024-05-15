@@ -86,11 +86,31 @@ app.set("views", path.resolve(__dirname, "templates"));
 app.set("view engine", "ejs");
 
 app.get("/", (request, response) => {
-    
-    variables= {mathProblem: "x^2 + 2x + 1"};
-    response.render("index", variables);
+    response.render("index");
 });
 
+app.get("/teamStats", (request, response) => {
+  response.render("teamStats");
+});
+
+app.post("/teamStats", (request, response) => {
+  variables = {
+    
+  }
+  response.render("teamStatsResults", variables);
+});
+
+app.get("/teamHistory", (request, response) => {
+  response.render("teamHistory");
+});
+
+app.post("/teamHistory", (request, response) => {
+  response.render("teamHistoryResults");
+});
+
+app.get("/searchHistory", (request, response) => {
+  response.render("searchHistory");
+});
 
 /*
   Add more routes here
