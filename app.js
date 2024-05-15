@@ -31,12 +31,12 @@ cfbRadio.getBets(2023, "Maryland")
     })
     .catch(error => console.error(error));
 
-// let info;
-// let many = new cfbRequests.cfbRequests(apiKey);
-// many.getMatchups("Penn State", "Maryland")
-//     .then(info => console.log(info))
-//     .catch(error => console.error(error));
-// console.log(info);
+let info;
+let many = new cfbRequests.cfbRequests(apiKey);
+many.getMatchups("Auburn", "Maryland")
+    .then(info => console.log(info))
+    .catch(error => console.error(error));
+
 
 
 const { symbolicEqual }= require('mathjs');
