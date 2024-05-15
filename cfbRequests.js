@@ -83,7 +83,13 @@ class cfbRequests {
 
 		try {
 			let data = await this.matchupApi.getTeamMatchup(team1, team2, opts);
-			return this.formatGames(data.games)
+			let formattedGames = this.formatGames(data.games);
+
+			let headings = ["Season", "Week", "Game Type", "Date", "Neutral Site", "Home Team", "Home Score", "Away Team", "Away Score", "Winner"];
+
+			let summary = data;
+			delete data.games;
+			return [formattedGames, headings, data];
 		}
 
 		catch (error) {
@@ -103,6 +109,7 @@ class cfbRequests {
 					dictionary[key] = dictionary[key] != [] ? [...dictionary[key], game[key]] : [game[key]];
 				}
 			}
+
 			return dictionary;
 
 		} else {
