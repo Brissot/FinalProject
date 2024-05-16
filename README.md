@@ -14,7 +14,7 @@ users to make queries about team matchups and team stats by season. Queries are 
 
 **YouTube Video Link:** https://youtu.be/02ToO_s5M6M
 
-**Deployed Website Link:** https://finalproject-sbdz.onrender.com/searchHistory
+**Deployed Website Link:** https://finalproject-sbdz.onrender.com/
 
 **Contact Email:** sidsu@terpmail.umd.edu
 
