@@ -43,7 +43,6 @@ function createTable(headers, internalHeaders, data) {
 
     let strBody= "<tbody>";
     /* data[internalHeaders[0]] is to get a length that exists */
-    console.log(internalHeaders[0]);
     for (let i= 0; i < data[internalHeaders[0]].length; i++) {
 	strBody= strBody + "<tr>";
 	for (let header of internalHeaders) {
@@ -57,10 +56,6 @@ function createTable(headers, internalHeaders, data) {
 
     return strTable;
 }
-
-/* test of createTable() */
-t= createTable(["hi", "hii", "hiii"], ["hi", "hii", "hiii"], {hi: ["hello","hallo"], hii: ["hey","heyy"], hiii: ["sup","suh"]});
-console.log(t);
 
 /*
 mongoDB stuff
@@ -82,7 +77,7 @@ const client = new MongoClient(uri, {
   }
 });
 
-/* Ping the server*/
+/* Ping the server */
 async function ping() {
   try {
     // Connect the client to the server (optional starting in v4.7)
@@ -140,8 +135,6 @@ app.post("/teamStats", async (request, response) => {
     
     let dataTup= await cfbRadio.getBets(year, team);
 
-    console.log(dataTup);
-    
     let headers= dataTup.headers;
     let internalHeaders= dataTup.internalHeaders;
     let data= dataTup.data;
@@ -168,7 +161,7 @@ app.get("/teamHistory", (request, response) => {
 app.post("/teamHistory", async (request, response) => {
     let {team1, team2} = request.body;
 
-    let infoTup= await cfbRadio.getMatchups("Auburn", "Maryland");
+    let infoTup= await cfbRadio.getMatchups(team1, team2);
 
     let formattedGames= infoTup.formattedGames;
     let headings= infoTup.headings;
@@ -176,7 +169,6 @@ app.post("/teamHistory", async (request, response) => {
 
     let table= createTable(headings, Object.keys(formattedGames), formattedGames);
 
-    console.log("The table that we want", table);
     let variables = {
 	team1: team1,
 	team2: team2,

@@ -28,15 +28,17 @@ class cfbRequests {
 
 	    rawData.sort((first, second) => first.week - second.week);
 
-	    const headers= ["Week", "Season Type", "Start Date",
-			    "Home Team", "Home Conference", "Home Score",
-			    "Away Team", "Away Conference", "Away Score"];
-	    const internalHeaders= ['id', 'season',
+	    const headers= ["Week", "Season Type",
+			    "Start Date", "Home Team",
+			    "Home Conference", "Home Score",
+			    "Away Team", "Away Conference",
+			    "Away Score"];
+	    const internalHeaders= ['id',             'season',
 				    'week',           'seasonType',
 				    'startDate',      'homeTeam',
 				    'homeConference', 'homeScore',
 				    'awayTeam',       'awayConference',
-				    'awayScore',      'lines'];
+				    'awayScore'];
 	    
 	    const data= await this.formatBets(headers, internalHeaders, rawData);
 
@@ -106,7 +108,8 @@ class cfbRequests {
 			}
 			for (let key of Object.keys(dictionary)) {
 				for (let game of rawData) {
-					dictionary[key] = dictionary[key] != [] ? [...dictionary[key], game[key]] : [game[key]];
+					dictionary[key] = dictionary[key] != [] ?
+					  [...dictionary[key], game[key]] : [game[key]];
 				}
 			}
 
