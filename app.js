@@ -39,16 +39,17 @@ function createTable(headers, internalHeaders, data) {
     const strInnerHead= headers.reduce(
 	(acc, header) => acc + "<th>" + header + "</th>", "");
     const strHead= "<thead><tr>" + strInnerHead + "</tr></thead>";
-    
 
     let strBody= "<tbody>";
-    /* data[internalHeaders[0]] is to get a length that exists */
-    for (let i= 0; i < data[internalHeaders[0]].length; i++) {
-	strBody= strBody + "<tr>";
-	for (let header of internalHeaders) {
-	    strBody= strBody + "<td>" + data[header][i] +"</td>";
+    if (data[internalHeaders[0]] != undefined) {
+	/* data[internalHeaders[0]] is to get a length that exists */
+	for (let i= 0; i < data[internalHeaders[0]].length; i++) {
+	    strBody= strBody + "<tr>";
+	    for (let header of internalHeaders) {
+		strBody= strBody + "<td>" + data[header][i] +"</td>";
+	    }
+	    strBody= strBody + "</tr>";
 	}
-	strBody= strBody + "</tr>";
     }
     strBody= strBody + "</tbody>";
 
