@@ -87,9 +87,9 @@ class cfbRequests {
 
 			let headings = ["Season", "Week", "Game Type", "Date", "Neutral Site", "Home Team", "Home Score", "Away Team", "Away Score", "Winner"];
 
-			let summary = data;
+			let summary = `${team1} vs. ${team2} from ${min(formattedGames.season)} to ${max(formattedGames.season)}`;
 			delete data.games;
-			return [formattedGames, headings, data];
+			return [formattedGames, headings, summary];
 		}
 
 		catch (error) {
