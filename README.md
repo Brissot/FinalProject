@@ -12,9 +12,9 @@ date: May 9, 2024
 Our app, titled "College Football Stats" is a search database for college football statistics. Our app allows 
 users to make queries about team matchups and team stats by season. Queries are also stored to be checked in the future. 
 
-**YouTube Video Link:** https://youtube.com/
+**YouTube Video Link:** https://youtu.be/02ToO_s5M6M
 
-**Deployed Website Link** 
+**Deployed Website Link:** https://finalproject-sbdz.onrender.com/searchHistory
 
 **Contact Email:** sidsu@terpmail.umd.edu
 
