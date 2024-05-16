@@ -260,9 +260,10 @@ async function getSearchHistory(client, databaseAndCollection) {
   const result = await cursor.toArray();
   let searchResults = "";
   for (let r of result) {
-    searchResults += `<h3>${r.name}<h3><p>${r.data}</p>`;
+    searchResults += `<h3>${r.name}<h3><br><p>${r.data}</p>`;
   }
-  return result;
+  console.log(searchResults);
+  return searchResults;
 }
 
 async function addRequest(client, databaseAndCollection, request) {
