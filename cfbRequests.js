@@ -85,9 +85,9 @@ class cfbRequests {
 			let data = await this.matchupApi.getTeamMatchup(team1, team2, opts);
 			let formattedGames = this.formatGames(data.games);
 
-			let headings = ["Season", "Week", "Game Type", "Date", "Neutral Site", "Home Team", "Home Score", "Away Team", "Away Score", "Winner"];
+			let headings = ["Season", "Week", "Game Type", "Date", "Neutral Site", "Venue", "Home Team", "Home Score", "Away Team", "Away Score", "Winner"];
 
-			let summary = `${team1} vs. ${team2} from ${min(formattedGames.season)} to ${max(formattedGames.season)}`;
+			let summary = `${team1} vs. ${team2}`;
 			delete data.games;
 			return [formattedGames, headings, summary];
 		}
