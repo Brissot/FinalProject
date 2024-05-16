@@ -87,10 +87,10 @@ class cfbRequests {
 			let formattedGames = this.formatGames(data.games);
 
 			let headings = ["Season", "Week", "Game Type", "Date", "Neutral Site", "Venue", "Home Team", "Home Score", "Away Team", "Away Score", "Winner"];
-
+			console.log(data);
 			let summary = `${team1} vs. ${team2}`;
-			delete data.games;
-			return [formattedGames, headings, summary];
+			let record = `Overall Record: ${data.team1Wins} (${team1}) - ${data.team2Wins} (${team2})`
+			return [formattedGames, headings, summary, record];
 		}
 
 		catch (error) {
