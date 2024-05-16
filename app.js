@@ -262,7 +262,6 @@ async function getSearchHistory(client, databaseAndCollection) {
   for (let r of result) {
     searchResults += `<h3>${r.name}<h3><br><p>${r.data}</p>`;
   }
-  console.log(searchResults);
   return searchResults;
 }
 
