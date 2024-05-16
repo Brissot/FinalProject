@@ -22,27 +22,7 @@ const apiKey = process.env.CFB_API_KEY;
 
 const cfbRequests= require("./cfbRequests");
 let cfbRadio= new cfbRequests.cfbRequests(apiKey);
-let data;
-cfbRadio.getBets(2023, "Maryland")
-    .then(data => {
-	for (let game of data) {
-	    console.log("here", game);
-	}
-    })
-    .catch(error => console.error(error));
 
-let info;
-let many = new cfbRequests.cfbRequests(apiKey);
-many.getMatchups("Auburn", "Maryland")
-    .then(info => console.log(info))
-    .catch(error => console.error(error));
-
-
-
-const { symbolicEqual }= require('mathjs');
-console.log(symbolicEqual("tan(x)", "sin(x)/cos(x)"));
-console.log(symbolicEqual("cos(x)^2 + sin(x)^2", "1"));
-console.log(symbolicEqual("x^2 + x + 1", "1 + x + x^2"));
 /*
   Website Logic goes here
 */
@@ -53,19 +33,21 @@ console.log(symbolicEqual("x^2 + x + 1", "1 + x + x^2"));
    headers: it's a list of strings. Don't overthink it. Though this is what we
    use in order to get the number of columns.
 
-   data: a list of lists of strings.
+   data: an object of lists of strings.
  */
-function createTable(headers, data) {
+function createTable(headers, internalHeaders, data) {
     const strInnerHead= headers.reduce(
 	(acc, header) => acc + "<th>" + header + "</th>", "");
     const strHead= "<thead><tr>" + strInnerHead + "</tr></thead>";
-
+    
 
     let strBody= "<tbody>";
-    for (let i= 0; i < data[0].length; i++) {
+    /* data[internalHeaders[0]] is to get a length that exists */
+    console.log(internalHeaders[0]);
+    for (let i= 0; i < data[internalHeaders[0]].length; i++) {
 	strBody= strBody + "<tr>";
-	for (let j= 0; j < headers.length; j++) {
-	    strBody= strBody + "<td>" + data[j][i] +"</td>";
+	for (let header of internalHeaders) {
+	    strBody= strBody + "<td>" + data[header][i] +"</td>";
 	}
 	strBody= strBody + "</tr>";
     }
@@ -77,8 +59,8 @@ function createTable(headers, data) {
 }
 
 /* test of createTable() */
-// t= createTable(["hi", "hii", "hiii"], [["hello","hallo"], ["hey","heyy"],["sup","suh"]]);
-// console.log(t);
+t= createTable(["hi", "hii", "hiii"], ["hi", "hii", "hiii"], {hi: ["hello","hallo"], hii: ["hey","heyy"], hiii: ["sup","suh"]});
+console.log(t);
 
 /*
 mongoDB stuff
@@ -154,18 +136,29 @@ app.get("/teamStats", (request, response) => {
 });
 
 app.post("/teamStats", async (request, response) => {
-  let {team, year} = request.body;
-  variables = {
-    team: team,
-    year: year,
-    stats: ""
-  }
-  request = {
-    name: `Stats for ${team} in ${year}`,
-    data: variables.stats
-  }
-  await addRequest(client, databaseAndCollection, request);
-  response.render("teamStatsResults", variables);
+    let {team, year} = request.body;
+    
+    let dataTup= await cfbRadio.getBets(year, team);
+
+    console.log(dataTup);
+    
+    let headers= dataTup.headers;
+    let internalHeaders= dataTup.internalHeaders;
+    let data= dataTup.data;
+
+    const table= createTable(headers, internalHeaders, data);
+
+    let variables = {
+	team: team,
+	year: year,
+	stats: table
+    };
+    request = {
+	name: `Stats for ${team} in ${year}`,
+	data: variables.stats
+    };
+    await addRequest(client, databaseAndCollection, request);
+    response.render("teamStatsResults", variables);
 });
 
 app.get("/teamHistory", (request, response) => {
@@ -173,25 +166,35 @@ app.get("/teamHistory", (request, response) => {
 });
 
 app.post("/teamHistory", async (request, response) => {
-  let {team1, team2} = request.body;
-  variables = {
-    team1: team1,
-    team2: team2,
-    summary: "",
-    data: ""
-  }
-  request = {
-    name: `${team1} vs ${team2} History`,
-    data: `${variables.summary}<br>${variables.data}`
-  }
-  await addRequest(client, databaseAndCollection, request)
-  response.render("teamHistoryResults", variables);
+    let {team1, team2} = request.body;
+
+    let infoTup= await cfbRadio.getMatchups("Auburn", "Maryland");
+
+    let formattedGames= infoTup.formattedGames;
+    let headings= infoTup.headings;
+    let summary= infoTup.data;
+
+    let table= createTable(headings, Object.keys(formattedGames), formattedGames);
+
+    console.log("The table that we want", table);
+    let variables = {
+	team1: team1,
+	team2: team2,
+	summary: summary,
+	data: table
+    };
+    request = {
+	name: `${team1} vs ${team2} History`,
+	data: `${variables.summary}<br>${variables.data}`
+    };
+    await addRequest(client, databaseAndCollection, request);
+    response.render("teamHistoryResults", variables);
 });
 
 app.get("/searchHistory", async (request, response) => {
   variables = {
     searches: await getSearchHistory(client, databaseAndCollection)
-  }
+  };
   response.render("searchHistory", variables);
 });
 
@@ -199,7 +202,7 @@ app.post("/searchHistory", async (request, response) => {
   await clearSearchHistory(client, databaseAndCollection);
   variables = {
     searches: ""
-  }
+  };
   response.render("searchHistory", variables);
 });
 
