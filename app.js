@@ -161,7 +161,7 @@ app.get("/teamHistory", (request, response) => {
 app.post("/teamHistory", async (request, response) => {
     let {team1, team2} = request.body;
 
-    [formattedGames, headings, summary] =  await cfbRadio.getMatchups("Auburn", "Maryland");
+    [formattedGames, headings, summary] =  await cfbRadio.getMatchups(team1, team2);
 
     let table= createTable(headings, Object.keys(formattedGames), formattedGames);
 

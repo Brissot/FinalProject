@@ -33,8 +33,7 @@ class cfbRequests {
 			    "Home Conference", "Home Score",
 			    "Away Team", "Away Conference",
 			    "Away Score"];
-	    const internalHeaders= ['id',             'season',
-				    'week',           'seasonType',
+	    const internalHeaders= ['week',           'seasonType',
 				    'startDate',      'homeTeam',
 				    'homeConference', 'homeScore',
 				    'awayTeam',       'awayConference',
