@@ -38,7 +38,7 @@ class cfbRequests {
 				    'awayTeam',       'awayConference',
 				    'awayScore',      'lines'];
 	    
-	    const data= this.formatBets(headers, internalHeaders, data);
+	    const data= await this.formatBets(headers, internalHeaders, rawData);
 
 	    return { headers, internalHeaders, data };
 	}
