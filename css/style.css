@@ -34,3 +34,10 @@ form {
     padding: 20px;
     margin: 100px;
 }
+
+.results {
+    background-color: white;
+    border: 1px solid black;
+    margin: auto;
+    width: 50%;
+}
