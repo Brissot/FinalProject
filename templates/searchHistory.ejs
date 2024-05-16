@@ -8,10 +8,15 @@
     </head>
 
     <body>
-        <h1>Search History</h1>
+        <h1><mark>Search History</mark></h1>
 
-        <%- searches %>
-
+        <div class="results">
+            <%- searches %>
+        </div>
+        <br>
+        <form method="post">
+            <input type="submit" value="Clear Search History">
+        </form>
         <footer>
             <a href="/"><img src="./band.jpeg" alt="band" class="footer"></a>
         </footer>
