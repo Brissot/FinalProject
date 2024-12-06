@@ -1,3 +1,15 @@
+/* Check .env Environmental Variables */
+const path= require("path");
+const bodyParser = require("body-parser");
+require("dotenv").config({
+  path: path.resolve(__dirname, '.env')
+});
+
+const {MongoClient, ServerApiVersion}= require('mongodb');
+const express= require("express"); /* Accessing express module */
+
+const cfbRequests= require("./cfbRequests");
+
 /* Check Arguments */
 if (process.argv.length !== 3) {
   console.error("Usage app.js <port number>");
@@ -7,12 +19,6 @@ if (process.argv.length !== 3) {
 const portNumber= process.argv[2];
 const hostname= "localhost";
 
-/* Check .env Environmental Variables */
-const path= require("path");
-require("dotenv").config({
-  path: path.resolve(__dirname, '.env')
-});
-
 /* Get the Environmental Variables out */
 const username = process.env.MONGO_DB_USERNAME;
 const password = process.env.MONGO_DB_PASSWORD;
@@ -20,7 +26,6 @@ const dbName = process.env.MONGO_DB_NAME;
 const collectionName = process.env.MONGO_COLLECTION;
 const apiKey = process.env.CFB_API_KEY;
 
-const cfbRequests= require("./cfbRequests");
 let cfbRadio= new cfbRequests.cfbRequests(apiKey);
 
 /*
@@ -43,7 +48,8 @@ function createTable(headers, internalHeaders, data) {
     let strBody= "<tbody>";
     if (data[internalHeaders[0]] != undefined) {
 	/* data[internalHeaders[0]] is to get a length that exists */
-	for (let i= 0; i < data[internalHeaders[0]].length; i++) {
+      for (let i=data[internalHeaders[0]].length - 1; i >= 0; i--) {
+	//for (let i= 0; i < data[internalHeaders[0]].length; i++) {
 	    strBody= strBody + "<tr>";
 	    for (let header of internalHeaders) {
 		strBody= strBody + "<td>" + data[header][i] +"</td>";
@@ -61,7 +67,6 @@ function createTable(headers, internalHeaders, data) {
 /*
 mongoDB stuff
 */
-const {MongoClient, ServerApiVersion}= require('mongodb');
 const databaseAndCollection = {db: dbName, collection: collectionName};
 const uri= "mongodb+srv://" +
            username + ":" + password +
@@ -112,10 +117,12 @@ async function insertApplicant(client, applicant) {
 /*
 express stuff 
 */
-const express= require("express"); /* Accessing express module */
 const app= express(); /* app is a request handler function */
+app.use(
+  '/favicon.ico',
+  express.static("media/american-football-transparent.png")
+);
 app.use(express.static('css')); /* for css */
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended:false}));
 
 /* directory where templates will reside */

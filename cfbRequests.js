@@ -80,10 +80,13 @@ class cfbRequests {
 
 
 	async getMatchups(team1, team2) {
-		const opts = { 'minYear': 1869, 'maxYear': 2023 }
+		const opts = { 'minYear': 1869, 'maxYear': 2024 }
 
 		try {
+			/* get the data from the cfb api */
 			let data = await this.matchupApi.getTeamMatchup(team1, team2, opts);
+
+			/* format the games */
 			let formattedGames = this.formatGames(data.games);
 
 			let headings = ["Season", "Week", "Game Type", "Date", "Neutral Site", "Venue", "Home Team", "Home Score", "Away Team", "Away Score", "Winner"];
@@ -98,15 +101,50 @@ class cfbRequests {
 		}
 	}
 
+	/* formats the games for matchup data */
 	formatGames(rawData) {
-		if (rawData.length != 0) {
+		if (rawData.length !== 0) {
 			let dictionary = {};
-			console.log(Object.keys(rawData[0]));
+			console.log("Keys in raw data:\n" + Object.keys(rawData[0]));
 			for (let key of Object.keys(rawData[0])) {
 				dictionary[key] = [];
 			}
 			for (let key of Object.keys(dictionary)) {
+				/* iterate through each game in raw data */
 				for (let game of rawData) {
+					if (game["winner"] === null) {
+						game["winner"] = "Tie";
+					}
+					if (game["neutralSite"])
+						game["neutralSite"] = "Yes";
+					else
+						game["neutralSite"] = "No";
+
+					// Convert to a Date object
+					const date = new Date(game["date"]);
+
+					// Format the date
+					const options = {
+						year: 'numeric',
+						month: 'short', // 'short' gives abbreviated month like "Oct."
+						day: 'numeric',
+						hour: 'numeric',
+						minute: 'numeric',
+						hour12: true, // For 12-hour format with AM/PM
+					};
+
+					const formatter = new Intl.DateTimeFormat('en-US', options);
+					const formattedDate = formatter.format(date);
+
+					game["date"] = formattedDate;
+
+					// fix null venues
+					if (game["venue"] === null)
+						game["venue"] = "unknown";
+
+					// Output the result
+					console.log(formattedDate); // "Oct. 21, 2024, 3:30 PM"
+					/* If the key already exists, don't do anything, else put game in */
 					dictionary[key] = dictionary[key] != [] ?
 						[...dictionary[key], game[key]] : [game[key]];
 				}
