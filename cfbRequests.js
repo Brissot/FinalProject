@@ -1,161 +1,187 @@
 const cfb = require('cfb.js');
 
 class cfbRequests {
-	#defaultClient;
-	#ApiKeyAuth;
+    #defaultClient;
+    #ApiKeyAuth;
 
-	#bettingApi;
-	#drivesApi;
+    #bettingApi;
+    #drivesApi;
 
-	constructor(apiKey) {
-		this.defaultClient = cfb.ApiClient.instance;
+    constructor(apiKey) {
+        this.defaultClient = cfb.ApiClient.instance;
 
-		/* key authorization */
-		this.ApiKeyAuth = this.defaultClient.authentications['ApiKeyAuth'];
-		this.ApiKeyAuth.apiKey = `Bearer ${apiKey}`;
+        /* key authorization */
+        this.ApiKeyAuth = this.defaultClient.authentications['ApiKeyAuth'];
+        this.ApiKeyAuth.apiKey = `Bearer ${apiKey}`;
 
-		/* initialize the apis */
-		this.bettingApi = new cfb.BettingApi();
-		this.drivesApi = new cfb.DrivesApi();
-		this.matchupApi = new cfb.TeamsApi();
-	}
+        /* initialize the apis */
+        this.bettingApi = new cfb.BettingApi();
+        this.drivesApi = new cfb.DrivesApi();
+        this.matchupApi = new cfb.TeamsApi();
+    }
 
-	async getBets(year, team) {
-		const opts = { year: year, team: team, seasonType: "both" };
+    async getBets(year, team) {
+        const opts = { year: year, team: team, seasonType: "both" };
 
-		try {
-			const rawData = await this.bettingApi.getLines(opts);
+        try {
+            const rawData = await this.bettingApi.getLines(opts);
 
-			rawData.sort((first, second) => first.week - second.week);
+            rawData.sort((first, second) => first.week - second.week);
 
-			const headers = ["Week", "Season Type",
-				"Start Date", "Home Team",
-				"Home Conference", "Home Score",
-				"Away Team", "Away Conference",
-				"Away Score"];
-			const internalHeaders = ['week', 'seasonType',
-				'startDate', 'homeTeam',
-				'homeConference', 'homeScore',
-				'awayTeam', 'awayConference',
-				'awayScore'];
+            const headers = ["Week", "Season Type",
+                "Start Date", "Home Team",
+                "Home Conference", "Home Score",
+                "Away Team", "Away Conference",
+                "Away Score"];
+            const internalHeaders = ['week', 'seasonType',
+                'startDate', 'homeTeam',
+                'homeConference', 'homeScore',
+                'awayTeam', 'awayConference',
+                'awayScore'];
 
-			const data = await this.formatBets(headers, internalHeaders, rawData);
+            const data = await this.formatBets(
+                headers, internalHeaders, rawData
+            );
 
-			return { headers, internalHeaders, data };
-		}
-		catch (error) {
-			throw ("failed to retreive from betting api", error);
-		}
-	}
+            return { headers, internalHeaders, data };
+        }
+        catch (error) {
+            throw ("failed to retreive from betting api", error);
+        }
+    }
 
-	async formatBets(headers, internalHeaders, rawData) {
-		let dict = {};
-		for (let header of internalHeaders) {
-			dict[header] = []; /* initialize with empty dictionaries */
-		}
+    async formatBets(headers, internalHeaders, rawData) {
+        let dict = {};
+        for (let header of internalHeaders) {
+            dict[header] = []; /* initialize with empty dictionaries */
+        }
 
-		for (let rawDataDict of rawData) {
-			for (let header of internalHeaders) {
-				dict[header] = dict[header].concat([rawDataDict[header]]);
-			}
-		}
+        for (let rawDataDict of rawData) {
+            for (let header of internalHeaders) {
+                dict[header] = dict[header].concat([rawDataDict[header]]);
+            }
+        }
 
-		return dict;
-	}
-
-
-	async getDrives(year, team, week) {
-		const opts = { conference: "Big Ten", week: week };
-
-		try {
-			let data = await this.drivesApi.getDrives(56);
-
-			// console.log(data);
-			return data;
-		}
-		catch (error) {
-			throw ("failed to retreive from drives api", error);
-		}
-	}
+        return dict;
+    }
 
 
-	async getMatchups(team1, team2) {
-		const opts = { 'minYear': 1869, 'maxYear': 2024 }
+    async getDrives(year, team, week) {
+        const opts = { conference: "Big Ten", week: week };
 
-		try {
-			/* get the data from the cfb api */
-			let data = await this.matchupApi.getTeamMatchup(team1, team2, opts);
+        try {
+            let data = await this.drivesApi.getDrives(56);
 
-			/* format the games */
-			let formattedGames = this.formatGames(data.games);
+            // console.log(data);
+            return data;
+        }
+        catch (error) {
+            throw ("failed to retreive from drives api", error);
+        }
+    }
 
-			let headings = ["Season", "Week", "Game Type", "Date", "Neutral Site", "Venue", "Home Team", "Home Score", "Away Team", "Away Score", "Winner"];
-			console.log(data);
-			let summary = `${team1} vs. ${team2}`;
-			let record = `Overall Record: ${data.team1Wins} (${team1}) - ${data.team2Wins} (${team2})`
-			return [formattedGames, headings, summary, record];
-		}
 
-		catch (error) {
-			throw ("failed to retreive from drives api", error);
-		}
-	}
+    async getMatchups(team1, team2) {
+        const opts = { 'minYear': 1869, 'maxYear': 2024 }
+        const headings = [
+            "Season",
+            "Week",
+            "Game Type",
+            "Date",
+            "Neutral Site",
+            "Venue",
+            "Home Team",
+            "Home Score",
+            "Away Team",
+            "Away Score",
+            "Winner"
+        ];
 
-	/* formats the games for matchup data */
-	formatGames(rawData) {
-		if (rawData.length !== 0) {
-			let dictionary = {};
-			console.log("Keys in raw data:\n" + Object.keys(rawData[0]));
-			for (let key of Object.keys(rawData[0])) {
-				dictionary[key] = [];
-			}
-			for (let key of Object.keys(dictionary)) {
-				/* iterate through each game in raw data */
-				for (let game of rawData) {
-					if (game["winner"] === null) {
-						game["winner"] = "Tie";
-					}
-					if (game["neutralSite"])
-						game["neutralSite"] = "Yes";
-					else
-						game["neutralSite"] = "No";
+        try {
+            /* get the data from the cfb api */
+            let data = await this.matchupApi.getTeamMatchup(
+                team1, team2, opts
+            );
 
-					// Convert to a Date object
-					const date = new Date(game["date"]);
+            /* format the games
+                formatted as an object, with internalHeaders keys and an array
+                of game values */
+            let formattedGames = this.formatGames(data.games);
 
-					// Format the date
-					const options = {
-						year: 'numeric',
-						month: 'short', // 'short' gives abbreviated month like "Oct."
-						day: 'numeric',
-						hour: 'numeric',
-						minute: 'numeric',
-						hour12: true, // For 12-hour format with AM/PM
-					};
+            /* print the number of games gotten */
+            let numGames = 0;
+            if ("season" in formattedGames)
+                numGames = formattedGames["season"].length;
+            console.log("Got " + numGames + " Matches Played");
 
-					const formatter = new Intl.DateTimeFormat('en-US', options);
-					const formattedDate = formatter.format(date);
+            let summary = `${team1} vs. ${team2}`;
+            let record = "Overall Record: " +
+                `${data.team1Wins} (${team1}) - ${data.team2Wins} (${team2})`
+            
+            return [formattedGames, headings, summary, record];
+        }
 
-					game["date"] = formattedDate;
+        catch (error) {
+            console.log("failed to retreive from drives api:", error);
 
-					// fix null venues
-					if (game["venue"] === null)
-						game["venue"] = "unknown";
+            return [{}, headings, `${team1} vs. ${team2}`, "No Matches Found"];
+        }
+    }
 
-					// Output the result
-					console.log(formattedDate); // "Oct. 21, 2024, 3:30 PM"
-					/* If the key already exists, don't do anything, else put game in */
-					dictionary[key] = dictionary[key] != [] ?
-						[...dictionary[key], game[key]] : [game[key]];
-				}
-			}
+    /* formats the games for matchup data */
+    formatGames(rawData) {
+        if (rawData.length !== 0) {
+            let dictionary = {};
+            for (let key of Object.keys(rawData[0])) {
+                dictionary[key] = [];
+            }
+            for (let key of Object.keys(dictionary)) {
+                /* iterate through each game in raw data, and make things more
+                    human readable */
+                for (let game of rawData) {
+                    if (game["winner"] === null) {
+                        game["winner"] = "Tie";
+                    }
+                    if (game["neutralSite"])
+                        game["neutralSite"] = "Yes";
+                    else
+                        game["neutralSite"] = "No";
 
-			return dictionary;
+                    // Convert to a Date object
+                    const date = new Date(game["date"]);
 
-		} else {
-			return {};
-		}
-	}
+                    // Format the date
+                    const opts = {
+                        year: 'numeric',
+                        month: 'short', // for abbreviated month like "Oct."
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        hour12: true, // For 12-hour format with AM/PM
+                    };
+
+                    const formatter = new Intl.DateTimeFormat('en-US', opts);
+                    const formattedDate = formatter.format(date);
+
+                    game["date"] = formattedDate;
+
+                    // fix null venues
+                    if (game["venue"] === null)
+                        game["venue"] = "unknown";
+
+                    /* If the key already exists, don't do anything, else put
+                        game in */
+                    dictionary[key] = dictionary[key] != [] ?
+                        [...dictionary[key], game[key]] : [game[key]];
+                }
+            }
+
+            return dictionary;
+
+        } else {
+            return {};
+        }
+    }
 }
 
 module.exports = { cfbRequests };
