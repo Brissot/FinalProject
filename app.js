@@ -133,6 +133,10 @@ app.set("views", path.resolve(__dirname, "templates"));
 /* view/templating engine */
 app.set("view engine", "ejs");
 
+app.get("/healthz", (request, response) => {
+    response.status(200).send("OK: College Football Stats is up");
+});
+
 app.get("/", (request, response) => {
     response.render("index");
 });
