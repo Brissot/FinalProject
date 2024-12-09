@@ -1,4 +1,5 @@
-const cfb = require('cfb.js');
+const cfbAPI = require('cfb.js');
+
 
 class cfbRequests {
     #defaultClient;
@@ -6,18 +7,33 @@ class cfbRequests {
 
     #bettingApi;
     #drivesApi;
+    #gamesApi;
 
     constructor(apiKey) {
-        this.defaultClient = cfb.ApiClient.instance;
+        this.defaultClient = cfbAPI.ApiClient.instance;
 
         /* key authorization */
         this.ApiKeyAuth = this.defaultClient.authentications['ApiKeyAuth'];
         this.ApiKeyAuth.apiKey = `Bearer ${apiKey}`;
 
         /* initialize the apis */
-        this.bettingApi = new cfb.BettingApi();
-        this.drivesApi = new cfb.DrivesApi();
-        this.matchupApi = new cfb.TeamsApi();
+        this.bettingApi = new cfbAPI.BettingApi();
+        this.drivesApi = new cfbAPI.DrivesApi();
+        this.matchupApi = new cfbAPI.TeamsApi();
+        this.gamesApi = new cfbAPI.GamesApi();
+    }
+
+
+    async getGame(year, gameId) {
+        const opts = { "id": gameId };
+
+        try {
+            const ret = this.gamesApi.getGames(year, opts);
+            return ret
+        } catch(error) {
+            console.log("Failed to get game " + gameId + "\n\n" + e);
+        }
+
     }
 
     async getBets(year, team) {
@@ -26,18 +42,19 @@ class cfbRequests {
         try {
             const rawData = await this.bettingApi.getLines(opts);
 
+            console.log(JSON.stringify(rawData, null, 2));
             rawData.sort((first, second) => first.week - second.week);
 
             const headers = ["Week", "Season Type",
                 "Start Date", "Home Team",
                 "Home Conference", "Home Score",
                 "Away Team", "Away Conference",
-                "Away Score"];
+                "Away Score", "ID"];
             const internalHeaders = ['week', 'seasonType',
                 'startDate', 'homeTeam',
                 'homeConference', 'homeScore',
                 'awayTeam', 'awayConference',
-                'awayScore'];
+                'awayScore', "id"];
 
             const data = await this.formatBets(
                 headers, internalHeaders, rawData
@@ -51,18 +68,27 @@ class cfbRequests {
     }
 
     async formatBets(headers, internalHeaders, rawData) {
-        let dict = {};
+        let newBetsObj = {};
         for (let header of internalHeaders) {
-            dict[header] = []; /* initialize with empty dictionaries */
+            newBetsObj[header] = []; /* initialize with empty objects */
         }
 
         for (let rawDataDict of rawData) {
             for (let header of internalHeaders) {
-                dict[header] = dict[header].concat([rawDataDict[header]]);
+                newBetsObj[header] = newBetsObj[header].concat([rawDataDict[header]]);
             }
         }
 
-        return dict;
+        // newBetsObj["id"] = newBetsObj["id"].map((id) => {
+        //     `http://localhost:5000/games?id=${id}?year=2024`
+        // });
+
+        // console.log("aoeu" + JSON.stringify(newBetsObj["id"]);
+        for (let i=0; i < newBetsObj["id"].length; i++) {
+            newBetsObj["id"][i] = `<a href=./game?year=2024&id=${newBetsObj["id"][i]}>${newBetsObj["id"][i]}</a>`
+        }
+
+        return newBetsObj;
     }
 
 
@@ -142,10 +168,18 @@ class cfbRequests {
                     if (game["winner"] === null) {
                         game["winner"] = "Tie";
                     }
-                    if (game["neutralSite"])
+                    /* For some reason the post-conversion game["neutralSite"]
+                        comes through sometimes */
+                    if (game["neutralSite"] === true ||
+                        game["neutralSite"] === "Yes") {
                         game["neutralSite"] = "Yes";
-                    else
+                    }
+                    else if (game["neutralSite"] === false ||
+                            game["neutralSite"] === "No") {
                         game["neutralSite"] = "No";
+                    }
+                    else
+                        game["neutralSite"] = "-";
 
                     // Convert to a Date object
                     const date = new Date(game["date"]);
@@ -167,7 +201,7 @@ class cfbRequests {
 
                     // fix null venues
                     if (game["venue"] === null)
-                        game["venue"] = "unknown";
+                        game["venue"] = "-";
 
                     /* If the key already exists, don't do anything, else put
                         game in */
@@ -182,6 +216,9 @@ class cfbRequests {
             return {};
         }
     }
+}
+
+class cfbFormatter {
 }
 
 module.exports = { cfbRequests };
