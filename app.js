@@ -159,13 +159,14 @@ app.post("/teamStats", async (request, response) => {
     let variables = {
         team: team,
         year: year,
-        stats: table
+        stats: table,
+        summary: `${team} ${year} Season`
     };
     request = {
         name: `Stats for ${team} in ${year}`,
         data: variables.stats
     };
-    await addRequest(client, databaseAndCollection, request);
+    await addSearch(client, databaseAndCollection, request);
     response.render("teamStatsResults", variables);
 });
 
@@ -188,13 +189,12 @@ app.post("/teamHistory", async (request, response) => {
         team2: team2,
         summary: summary + '<br>' + record,
         data: table
-
     };
     request = {
         name: `${team1} vs ${team2} History`,
         data: `${variables.summary}<br>${variables.data}`
     };
-    await addRequest(client, databaseAndCollection, request);
+    await addSearch(client, databaseAndCollection, request);
     response.render("teamHistoryResults", variables);
 });
 
@@ -211,6 +211,29 @@ app.post("/searchHistory", async (request, response) => {
         searches: ""
     };
     response.render("searchHistory", variables);
+});
+
+app.get("/game", async (request, response) => {
+    const { year, id } = request.query;
+
+    if (year && id) {
+        const r = await cfbRadio.getGame(year, id);
+        const r2 = r[0];
+        console.log(r2);
+
+        variables = {
+            homeTeam: r2["homeTeam"],
+            awayTeam: r2["awayTeam"],
+            year: r2["season"],
+            summary: "Game Summary",
+            stats: JSON.stringify(r2, null, 2)
+        }
+        response.render("game", variables);
+        // response.send(JSON.stringify(r2))
+    }
+    else {
+        response.send("Required year or id not sent")
+    }
 });
 
 /* start express :) */
@@ -274,7 +297,7 @@ async function getSearchHistory(client, databaseAndCollection) {
     return searchResults;
 }
 
-async function addRequest(client, databaseAndCollection, request) {
+async function addSearch(client, databaseAndCollection, request) {
     await client.db(databaseAndCollection.db)
         .collection(databaseAndCollection.collection)
         .insertOne(request);
