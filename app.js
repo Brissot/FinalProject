@@ -26,96 +26,14 @@ const dbName = process.env.MONGO_DB_NAME;
 const collectionName = process.env.MONGO_COLLECTION;
 const apiKey = process.env.CFB_API_KEY;
 
-let cfbRadio = new cfbRequests.cfbRequests(apiKey);
-
-/*
-  Website Logic goes here
-*/
-
-/**
-   Creates a table with headers and data.
-
-   headers: it's a list of strings. Don't overthink it. Though this is what we
-   use in order to get the number of columns.
-
-   data: an object of lists of strings.
- */
-function createTable(headers, internalHeaders, data) {
-    const strInnerHead = headers.reduce(
-        (acc, header) =>
-            acc + "<th>" + header + "</th>",
-        ""
-    );
-
-    const strHead = "<thead><tr>" + strInnerHead + "</tr></thead>";
-
-    let strBody = "<tbody>";
-    if (data[internalHeaders[0]] != undefined) {
-        /* data[internalHeaders[0]] is to get a length that exists */
-        for (let i = data[internalHeaders[0]].length - 1; i >= 0; i--) {
-            strBody = strBody + "<tr>";
-            for (let header of internalHeaders) {
-                strBody = strBody + "<td>" + data[header][i] + "</td>";
-            }
-            strBody = strBody + "</tr>";
-        }
-    }
-    strBody = strBody + "</tbody>";
-
-    let strTable = "<table>" + strHead + strBody + "</table>";
-
-    return strTable;
-}
-
-/*
-mongoDB stuff
-*/
+/* MongoDB Environmental Variables */
 const databaseAndCollection = { db: dbName, collection: collectionName };
 const uri = "mongodb+srv://" +
     username + ":" + password +
     "@sid-su.eczia3i.mongodb.net/" +
     "?retryWrites=true&w=majority&appName=Sid-Su";
 
-/* Create a MongoClient with a MongoClientOptions object to set the Stable API
-  version */
-const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
-});
-
-/* Ping the server */
-async function ping() {
-    try {
-        // Connect the client to the server (optional starting in v4.7)
-        await client.connect();
-        // Send a ping to confirm a successful connection
-        await client.db(dbName).command({ ping: 1 });
-        console.log("MongoDB Connection Successful!");
-    }
-    finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
-    }
-}
-ping().catch(console.dir);
-
-async function insertApplicant(client, applicant) {
-    try {
-        const db = await client.db(dbName);
-        const collection = await db.collection(collectionName);
-
-        const result = await collection.insertOne(applicant);
-
-        return result
-    }
-    finally {
-        // Ensures that the client will close when you finish/error
-        await client.close();
-    }
-}
+let cfbRadio = new cfbRequests.cfbRequests(apiKey);
 
 /*
 express stuff 
@@ -126,6 +44,7 @@ app.use(
     express.static("media/american-football-transparent.png")
 );
 app.use(express.static('css')); /* for css */
+app.use("/media", express.static("media"));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /* directory where templates will reside */
@@ -146,15 +65,10 @@ app.get("/teamStats", (request, response) => {
 });
 
 app.post("/teamStats", async (request, response) => {
+    /* Get the required parameters out of the request body */
     let { team, year } = request.body;
 
-    let dataTup = await cfbRadio.getBets(year, team);
-
-    let headers = dataTup.headers;
-    let internalHeaders = dataTup.internalHeaders;
-    let data = dataTup.data;
-
-    const table = createTable(headers, internalHeaders, data);
+    const table = await cfbRadio.getBets(year, team);
 
     let variables = {
         team: team,
@@ -178,11 +92,8 @@ app.post("/teamHistory", async (request, response) => {
     let { team1, team2 } = request.body;
 
     matchupsInfo = await cfbRadio.getMatchups(team1, team2);
-    [formattedGames, headings, summary, record] = matchupsInfo;
+    const [table, summary, record] = matchupsInfo;
 
-    let table = createTable(
-        headings, Object.keys(formattedGames), formattedGames
-    );
 
     let variables = {
         team1: team1,
@@ -217,19 +128,17 @@ app.get("/game", async (request, response) => {
     const { year, id } = request.query;
 
     if (year && id) {
-        const r = await cfbRadio.getGame(year, id);
-        const r2 = r[0];
-        console.log(r2);
+        /* game. singular. object. */
+        const game = await cfbRadio.getGame(year, id);
 
         variables = {
-            homeTeam: r2["homeTeam"],
-            awayTeam: r2["awayTeam"],
-            year: r2["season"],
+            homeTeam: game["homeTeam"],
+            awayTeam: game["awayTeam"],
+            year: game["season"],
             summary: "Game Summary",
-            stats: JSON.stringify(r2, null, 2)
+            stats: JSON.stringify(game, null, "<br>")
         }
         response.render("game", variables);
-        // response.send(JSON.stringify(r2))
     }
     else {
         response.send("Required year or id not sent")
@@ -241,22 +150,22 @@ app.listen(portNumber, (err) => {
     if (err) {
         console.log("Starting server failed.");
     }
-    else {
-        console.log(
-            `Express server started on: http://localhost:${portNumber}`
-        );
-    }
 });
 
 /*
 server-side console stuff
 */
 process.stdin.setEncoding("utf8"); /* encoding */
-console.log(`Web server is running at http://${hostname}:${portNumber}`);
-const prompt = "Stop to shutdown the server: ";
-process.stdout.write(prompt);
 
-process.stdin.on('readable', () => {  /* on() equivalent to addEventListener */
+/* Start message */
+console.log(`Web server is running at http://${hostname}:${portNumber}`);
+
+/* Prompt message. Reprints on every loop */
+const prompt = "Type \"stop\" to shutdown the server: ";
+console.log(prompt);
+
+/* on() equivalent to addEventListener */
+process.stdin.on("readable", () => {
     const dataInput = process.stdin.read();
     if (dataInput !== null) {
         const command = dataInput.trim();
@@ -265,16 +174,58 @@ process.stdin.on('readable', () => {  /* on() equivalent to addEventListener */
             process.exit(0);  /* exiting */
         }
         else {
-            console.log(`Invalid command: ${command}`);
+            console.log(`Invalid command: "${command}"`);
         }
     }
-    process.stdout.write(prompt);
+    console.log(prompt);
+
     process.stdin.resume();
 });
 
 /*
 MongoDB functions
 */
+
+/* Create a MongoClient with a MongoClientOptions object to set the Stable API
+  version */
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
+
+/* Ping the server */
+async function ping() {
+    try {
+        // Connect the client to the server (optional starting in v4.7)
+        await client.connect();
+        // Send a ping to confirm a successful connection
+        await client.db(dbName).command({ ping: 1 });
+        // console.log("MongoDB Connection Successful!");
+    }
+    finally {
+        // Ensures that the client will close when you finish/error
+        // await client.close();
+    }
+}
+ping().catch(console.dir);
+
+async function insertApplicant(client, applicant) {
+    try {
+        const db = await client.db(dbName);
+        const collection = await db.collection(collectionName);
+
+        const result = await collection.insertOne(applicant);
+
+        return result
+    }
+    finally {
+        // Ensures that the client will close when you finish/error
+        await client.close();
+    }
+}
 
 async function clearSearchHistory(client, databaseAndCollection) {
     const result = await client.db(databaseAndCollection.db)
@@ -290,10 +241,15 @@ async function getSearchHistory(client, databaseAndCollection) {
         .find(filter);
 
     const result = await cursor.toArray();
+
+    /* Add it to a big string in reverse order */
     let searchResults = "";
     for (let r of result) {
-        searchResults += `<h3>${r.name}<h3><br><p>${r.data}</p>`;
+        searchResults = `<div class="results"><h2>${r.name}</h2>` +
+                        `<br><p>${r.data}</p>"</div>"` +
+                        searchResults;
     }
+
     return searchResults;
 }
 

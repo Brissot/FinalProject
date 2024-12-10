@@ -1,15 +1,33 @@
+/** cfbRequests.js
+ * File that includes a class that handles both getting the college football
+ * stats (through the cfb.js API), and formatting the college football stats
+ * into HTML
+ */
 const cfbAPI = require('cfb.js');
 
 
+/**
+ * The main class that handles getting from cfb.js and formatting it in a nice
+ * way, so that the express app in app.js can display it :)
+ */
 class cfbRequests {
     #defaultClient;
     #ApiKeyAuth;
 
     #bettingApi;
     #drivesApi;
+    #matchApi;
     #gamesApi;
 
+    #dateFormatter
+
+    /**
+     * Constructor that seeks to pre-allocate as much as possible
+     * 
+     * @param {string} - Bearer key from https://collegefootballdata.com
+     */
     constructor(apiKey) {
+        /* API instance */
         this.defaultClient = cfbAPI.ApiClient.instance;
 
         /* key authorization */
@@ -21,77 +39,107 @@ class cfbRequests {
         this.drivesApi = new cfbAPI.DrivesApi();
         this.matchupApi = new cfbAPI.TeamsApi();
         this.gamesApi = new cfbAPI.GamesApi();
+
+        /* formatter for the date ex. "Dec. 9, 2024. 10:23PM" */
+        const opts = {
+            year: 'numeric',
+            month: 'short', // for abbreviated month like "Oct."
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true, // For 12-hour format with AM/PM
+        };
+        this.dateFormatter = new Intl.DateTimeFormat('en-US', opts);
     }
 
-
+    /**
+     * Method to get a game by ID. Note that the year parameter is not
+     * necessary in the raw API, but is in the cfb.js API, so we're passing
+     * years around all day
+     * 
+     * Documentation for the endpoint:
+     * https://github.com/CFBD/cfb.js/blob/master/docs/GamesApi.md#getgames
+     * 
+     * @param {number} year - The year the game was played
+     * @param {number} gameId - The gameID itself
+     * @returns {string} - An HTML string that displays things nicely
+     */
     async getGame(year, gameId) {
+        /* prepare options */
         const opts = { "id": gameId };
 
+        /* get the game */
         try {
-            const ret = this.gamesApi.getGames(year, opts);
-            return ret
-        } catch(error) {
-            console.log("Failed to get game " + gameId + "\n\n" + e);
-        }
+            /* get the game from cfb.js */
+            const gamesArray = await this.gamesApi.getGames(year, opts);
+            const game = gamesArray[0]; /* only looking for the 1 id */
 
+            /* format the game */
+            game["startDate"] = this.isoToHuman(game["startDate"]);
+
+            return game;
+        } catch(error) {
+            console.log("Failed to get game", gameId, ":\n", error);
+            return {};
+        }
     }
 
+    /**
+     * Method to get the season of a team (I know it's the wrong endpoint, it's
+     * on my to-do list. It also is an endpoint that consistantly works, so...
+     * 
+     * It goes from querying cfb.js, to formatting cfb.js, to creating an
+     * HTML-stlye table
+     * 
+     * @param {number} year - the year we want to get
+     * @param {string} team - the name of the team we want to get
+     * @returns {string} - returns an HTML-formatted table
+     */
     async getBets(year, team) {
         const opts = { year: year, team: team, seasonType: "both" };
 
+        /* Header and HTML step. Order matters, these match up by index */
+        const headers = ["Week", "Season Type",
+            "Start Date", "Home Team",
+            "Home Conference", "Home Score",
+            "Away Team", "Away Conference",
+            "Away Score", "ID"];
+        const internalHeaders = ['week', 'seasonType',
+            'startDate', 'homeTeam',
+            'homeConference', 'homeScore',
+            'awayTeam', 'awayConference',
+            'awayScore', "id"];
+
         try {
+            /* get the data from cfb.js */
             const rawData = await this.bettingApi.getLines(opts);
 
-            console.log(JSON.stringify(rawData, null, 2));
-            rawData.sort((first, second) => first.week - second.week);
+            /* What did we get? */
+            console.log(year, team, "Season: Got", rawData.length);
 
-            const headers = ["Week", "Season Type",
-                "Start Date", "Home Team",
-                "Home Conference", "Home Score",
-                "Away Team", "Away Conference",
-                "Away Score", "ID"];
-            const internalHeaders = ['week', 'seasonType',
-                'startDate', 'homeTeam',
-                'homeConference', 'homeScore',
-                'awayTeam', 'awayConference',
-                'awayScore', "id"];
+            /* Sort the data into reverse chronological order (recent games) */
+            await rawData.sort((first, second) => second.week - first.week);
 
-            const data = await this.formatBets(
-                headers, internalHeaders, rawData
-            );
+            /* Formatting step. Note that this is N*Columns function calls. I
+                am hoping that the compiler makes it okay */
+            for (let game of rawData) {
+                /* Human readable times */
+                game["startDate"] = this.isoToHuman(game["startDate"]);
 
-            return { headers, internalHeaders, data };
+                /* Add hyperlinks instead of a raw ID */
+                game["id"] = this.idToHyperlink(game["id"], year)
+            }
+
+            const table = this.createTable(headers, internalHeaders, rawData);
+
+            return table;
         }
         catch (error) {
-            throw ("failed to retreive from betting api", error);
+            console.log("Betting API: Failed to retreive data:", error);
         }
     }
 
-    async formatBets(headers, internalHeaders, rawData) {
-        let newBetsObj = {};
-        for (let header of internalHeaders) {
-            newBetsObj[header] = []; /* initialize with empty objects */
-        }
-
-        for (let rawDataDict of rawData) {
-            for (let header of internalHeaders) {
-                newBetsObj[header] = newBetsObj[header].concat([rawDataDict[header]]);
-            }
-        }
-
-        // newBetsObj["id"] = newBetsObj["id"].map((id) => {
-        //     `http://localhost:5000/games?id=${id}?year=2024`
-        // });
-
-        // console.log("aoeu" + JSON.stringify(newBetsObj["id"]);
-        for (let i=0; i < newBetsObj["id"].length; i++) {
-            newBetsObj["id"][i] = `<a href=./game?year=2024&id=${newBetsObj["id"][i]}>${newBetsObj["id"][i]}</a>`
-        }
-
-        return newBetsObj;
-    }
-
-
+    /* Not currently used. Probably doesn't work */
     async getDrives(year, team, week) {
         const opts = { conference: "Big Ten", week: week };
 
@@ -107,118 +155,170 @@ class cfbRequests {
     }
 
 
+    /**
+     * Method to get all matchups with the name of both teams
+     * 
+     * Goes from query cfb.js, to formatting properties, to generating an HTML-
+     * style table string
+     * 
+     * @param {string} team1 - the name of the first team
+     * @param {string} team2 - the name of the second team
+     * @returns {Object<string>} A triple of table, summary of record. All
+     * strings
+     */
     async getMatchups(team1, team2) {
         const opts = { 'minYear': 1869, 'maxYear': 2024 }
-        const headings = [
-            "Season",
-            "Week",
-            "Game Type",
-            "Date",
-            "Neutral Site",
-            "Venue",
-            "Home Team",
-            "Home Score",
-            "Away Team",
-            "Away Score",
+        const headers = [
+            "Season", "Week",
+            "Game Type", "Date",
+            "Neutral Site", "Venue",
+            "Home Team", "Home Score",
+            "Away Team", "Away Score",
             "Winner"
+        ];
+        const internalHeaders = [
+            "season", "week",
+            "seasonType", "date",
+            "neutralSite", "venue",
+            "homeTeam", "homeScore",
+            "awayTeam", "awayScore",
+            "winner"
         ];
 
         try {
-            /* get the data from the cfb api */
-            let data = await this.matchupApi.getTeamMatchup(
+            /* get the data from the cfb.js */
+            let rawData = await this.matchupApi.getTeamMatchup(
                 team1, team2, opts
             );
 
-            /* format the games
-                formatted as an object, with internalHeaders keys and an array
-                of game values */
-            let formattedGames = this.formatGames(data.games);
+            /* What did we get? */
+            console.log(`${team1} vs ${team2}: Got`,
+                rawData["games"].length
+            );
 
-            /* print the number of games gotten */
-            let numGames = 0;
-            if ("season" in formattedGames)
-                numGames = formattedGames["season"].length;
-            console.log("Got " + numGames + " Matches Played");
+            rawData["games"].sort(
+                (first, second) => second.season - first.season
+            );
+
+            /* format the games */
+            for (let game of rawData["games"]) {
+                if (game["winner"] === null)
+                    game["winner"] = "Tie";
+            
+                /* For some reason the post-conversion game["neutralSite"]
+                comes through sometimes */
+                if (game["neutralSite"] === true ||
+                    game["neutralSite"] === "Yes") {
+                    game["neutralSite"] = "Yes";
+                }
+                else if (game["neutralSite"] === false ||
+                        game["neutralSite"] === "No") {
+                    game["neutralSite"] = "No";
+                }
+                else
+                    game["neutralSite"] = "-";
+
+                // fix null venues
+                if (game["venue"] === null)
+                    game["venue"] = "-";
+
+                game["date"] = this.isoToHuman(game["date"]);
+            }
+
+            /* create a nice table that can be rendered on the frontend */
+            const table = this.createTable(
+                headers, internalHeaders, rawData["games"]
+            );
 
             let summary = `${team1} vs. ${team2}`;
             let record = "Overall Record: " +
-                `${data.team1Wins} (${team1}) - ${data.team2Wins} (${team2})`
+                `${rawData.team1Wins} (${team1}) - ` +
+                `${rawData.team2Wins} (${team2})`
             
-            return [formattedGames, headings, summary, record];
+            return [table, summary, record];
         }
 
         catch (error) {
-            console.log("failed to retreive from drives api:", error);
+            console.log("Failed to retrieve from matchups api:", error);
 
-            return [{}, headings, `${team1} vs. ${team2}`, "No Matches Found"];
+            return [{}, `${team1} vs. ${team2}`, "No Matches Found"];
         }
     }
 
-    /* formats the games for matchup data */
-    formatGames(rawData) {
-        if (rawData.length !== 0) {
-            let dictionary = {};
-            for (let key of Object.keys(rawData[0])) {
-                dictionary[key] = [];
-            }
-            for (let key of Object.keys(dictionary)) {
-                /* iterate through each game in raw data, and make things more
-                    human readable */
-                for (let game of rawData) {
-                    if (game["winner"] === null) {
-                        game["winner"] = "Tie";
-                    }
-                    /* For some reason the post-conversion game["neutralSite"]
-                        comes through sometimes */
-                    if (game["neutralSite"] === true ||
-                        game["neutralSite"] === "Yes") {
-                        game["neutralSite"] = "Yes";
-                    }
-                    else if (game["neutralSite"] === false ||
-                            game["neutralSite"] === "No") {
-                        game["neutralSite"] = "No";
-                    }
-                    else
-                        game["neutralSite"] = "-";
+    /**
+     * Converts ISO time to human time, so we can read it more easily.
+     * 
+     * Note that this function is intentionally left synchronous, because the
+     * overhead of async is bigger than the function
+     * 
+     * @param {string} isoTime - the time represented in ISO time, for instance
+     *                      2024-12-09T15:29:29-05:00
+     * @returns {string} - formatted human readable time. Above time is
+     *                      Dec. 9, 2024. 3:29PM
+     */
+    isoToHuman(isoTime) {
+        /* Convert the string isoTime to a JS date object*/
+        const date = new Date(isoTime);
 
-                    // Convert to a Date object
-                    const date = new Date(game["date"]);
+        /* format the date */
+        const formattedDate = this.dateFormatter.format(date);
 
-                    // Format the date
-                    const opts = {
-                        year: 'numeric',
-                        month: 'short', // for abbreviated month like "Oct."
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                        hour12: true, // For 12-hour format with AM/PM
-                    };
-
-                    const formatter = new Intl.DateTimeFormat('en-US', opts);
-                    const formattedDate = formatter.format(date);
-
-                    game["date"] = formattedDate;
-
-                    // fix null venues
-                    if (game["venue"] === null)
-                        game["venue"] = "-";
-
-                    /* If the key already exists, don't do anything, else put
-                        game in */
-                    dictionary[key] = dictionary[key] != [] ?
-                        [...dictionary[key], game[key]] : [game[key]];
-                }
-            }
-
-            return dictionary;
-
-        } else {
-            return {};
-        }
+        return formattedDate
     }
-}
 
-class cfbFormatter {
+    /**
+     * Converts a gameId and year into a hyperlink to the game with that gameId
+     * 
+     * Note that this function is intentionally left synchronous, because the
+     * overhead of async is bigger than the function
+     * 
+     * @param {number} id - The gameId we would like to convert
+     * @param {number} year - The year the game was played. This is necessary
+     *                  presumably because of a mistake when making cfb.js
+     * 
+     * @returns {string} - An HTML-formatted hyperlink to the game-by-id
+     *                  endpoint
+     */
+    idToHyperlink(id, year) {
+        return `<a href=./game?year=${year}&id=${id}>${id}</a>`;
+    }
+
+    /**
+     * Creates a table with headers and data.
+     * 
+     * @param {Array<string>} headers - it's an array of human-readable
+     * strings. This is what we use to determine which headers are "on" (the
+     * full output can be quite long)
+     * 
+     * @param {Array<string>} internalHeaders - it's an array of strings that
+     * can be used to access the each property for each element in the data
+     * array
+     * 
+     * @param {Array<Object>} data - an array of matches objects. Properties
+     * are read out based on headers and internalHeaders
+    */
+    createTable(headers, internalHeaders, data) {
+        const strInnerHead = headers.reduce(
+            (acc, header) =>
+                acc + "<th>" + header + "</th>",
+            ""
+        )
+        const strHead = "<thead><tr>" + strInnerHead + "</tr></thead>";
+
+        let strBody = "<tbody>"
+        for (let game of data) {
+            strBody = strBody + "<tr>";
+            for (let header of internalHeaders) {
+                strBody = strBody + "<td>" + game[header] + "</td>";
+            }
+            strBody = strBody + "</tr>";
+        }
+        strBody = strBody + "</tbody>";
+
+        const strTable = "<table>" + strHead + strBody + "</table>";
+        
+        return strTable;
+    }
 }
 
 module.exports = { cfbRequests };
