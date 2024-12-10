@@ -4,21 +4,17 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>College Football Stats</title>
-        <link rel="stylesheet" type="text/css" href="./style.css" />
+        <link rel="stylesheet" type="text/css" href="./style.css">
     </head>
 
     <body>
         <h1><mark>Search History</mark></h1>
 
-        <div class="results">
-            <%- searches %>
-        </div>
+        <%- searches %>
         <br>
         <form method="post">
             <input type="submit" value="Clear Search History">
         </form>
-        <footer>
-            <a href="/"><img src="./band.jpeg" alt="band" class="footer"></a>
-        </footer>
+        <%- include("footer") %>
     </body>
 </html>
