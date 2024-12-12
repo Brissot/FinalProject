@@ -82,7 +82,7 @@ class cfbRequests {
             for (let key of Object.keys(game)) {
                 gameTable =
                     gameTable + 
-                    `<tr><td>${key}</td>` +
+                    `<tr><th>${key}</th>` +
                     `<td>${game[key]}</td></tr>`
             }
             gameTable = gameTable + "</table>";

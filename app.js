@@ -39,12 +39,22 @@ let cfbRadio = new cfbRequests.cfbRequests(apiKey);
 express stuff 
 */
 const app = express(); /* app is a request handler function */
+
+/* make the favicon available*/
 app.use(
     '/favicon.ico',
-    express.static("media/american-football-transparent.png")
+    express.static(
+        "media/american-football-transparent.png", {  maxAge: '30d' }
+    )
 );
-app.use(express.static('css')); /* for css */
-app.use("/media", express.static("media"));
+
+/* make CSS available */
+app.use(express.static('css', { maxAge: '30d' }));
+
+/* make the images and video available */
+app.use("/media", express.static("media", { maxAge: '30d' }));
+
+
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /* directory where templates will reside */
