@@ -77,7 +77,20 @@ class cfbRequests {
             /* format the game */
             game["startDate"] = this.isoToHuman(game["startDate"]);
 
-            return game;
+            /* Create a table */
+            let gameTable = "<table>";
+            for (let key of Object.keys(game)) {
+                gameTable =
+                    gameTable + 
+                    `<tr><td>${key}</td>` +
+                    `<td>${game[key]}</td></tr>`
+            }
+            gameTable = gameTable + "</table>";
+
+            /* Return both the game and the table we made. Note that this gets
+                its own table function, because we want this one to be vertical
+                */
+            return [ game, gameTable ];
         } catch(error) {
             console.log("Failed to get game", gameId, ":\n", error);
             return {};

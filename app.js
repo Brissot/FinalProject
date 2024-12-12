@@ -129,14 +129,14 @@ app.get("/game", async (request, response) => {
 
     if (year && id) {
         /* game. singular. object. */
-        const game = await cfbRadio.getGame(year, id);
+        const [ game, gameTable ] = await cfbRadio.getGame(year, id);
 
         variables = {
             homeTeam: game["homeTeam"],
             awayTeam: game["awayTeam"],
             year: game["season"],
             summary: "Game Summary",
-            stats: JSON.stringify(game, null, "<br>")
+            stats: gameTable
         }
         response.render("game", variables);
     }
