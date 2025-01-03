@@ -1,0 +1,10 @@
+pie-chart {
+  display: block;
+  background: conic-gradient(
+    red 36deg, orange 36deg 170deg, yellow 170deg
+  );
+
+  border-radius: 50%;
+  height: 500px;
+  width: 500px;
+}
