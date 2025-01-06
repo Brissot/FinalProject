@@ -1,10 +1,15 @@
+/**
+ * css that can help style the pie chart from the outside
+ *
+ * this stuff is not included in pie.js, because it changes based on the usage
+ * of this Web Component
+*/
 pie-chart {
-  display: block;
-  background: conic-gradient(
-    red 36deg, orange 36deg 170deg, yellow 170deg
-  );
+  /* to avoid Flash of Unstyled Content (FoUC)
+    https://en.wikipedia.org/wiki/Flash_of_unstyled_content
+    */
+  visibility: hidden;
 
-  border-radius: 50%;
-  height: 500px;
-  width: 500px;
+  /* want it to fill up as much of the parent div as it can */
+  width: 100%;
 }
