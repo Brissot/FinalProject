@@ -127,7 +127,7 @@ class Pie extends HTMLElement {
  * A helper function that creates a cycle out of an Array as an iterator (or
  * generator)
  * 
- * @param {Array<t>} arr - an array of any type
+ * @param {Array} arr - an array of any type
  * @yields {Object} - Object with "value" and "done" (will never be done, it
  *  loops infinitely)
  * */
