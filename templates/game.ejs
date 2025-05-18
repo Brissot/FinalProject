@@ -8,15 +8,21 @@
     </head>
 
     <body>
-        <h1><mark><%- homeTeam %> vs <%- awayTeam %> <%- year %> Stats</mark></h1>
+        <h1><mark>Game <%- id %> Stats</mark></h1>
 
         <div class ="results">
+	    <% if (homeTeam && awayTeam) { %>
+		<%- homeTeam %> vs <%- awayTeam %> <- year %>
+	    <% } else { %>
+		Teams Unknown (likely not recieved from API)
+	    <% } %>
+
             <%- summary %>
         </div>
         <br><br>
 
         <div class="results">
-        <%- stats %>
+            <%- stats %>
         </div>
 
         <%- include("footer") %>

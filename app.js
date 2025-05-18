@@ -36,7 +36,7 @@ const uri = "mongodb+srv://" +
 let cfbRadio = new cfbRequests.cfbRequests(apiKey);
 
 /*
-express stuff 
+express stuff
 */
 const app = express(); /* app is a request handler function */
 
@@ -134,26 +134,38 @@ app.post("/searchHistory", async (request, response) => {
     response.render("searchHistory", variables);
 });
 
-app.get("/game", async (request, response) => {
+app.get("/game", async (request, response, next) => {
     const { year, id } = request.query;
 
     if (year && id) {
         /* game. singular. object. */
-        const [ game, gameTable ] = await cfbRadio.getGame(year, id);
+	const [ game, gameTable ] = await cfbRadio.getGame(year, id);
 
         variables = {
-            homeTeam: game["homeTeam"],
-            awayTeam: game["awayTeam"],
-            year: game["season"],
-            summary: "Game Summary",
-            stats: gameTable
-        }
+	    id: id,
+	    homeTeam: game["homeTeam"],
+	    awayTeam: game["awayTeam"],
+	    year: game["season"],
+	    summary: "Game Summary",
+	    stats: gameTable
+        };
         response.render("game", variables);
     }
     else {
         response.send("Required year or id not sent")
     }
 });
+
+/* A nice error page */
+app.use((error, request, response, next) => {
+    /* internally log the stack trace */
+    console.error(error.stack)
+
+    variables = {
+	message: error.message
+    };
+    response.status(500).render("error", variables);
+})
 
 /* start express :) */
 app.listen(portNumber, (err) => {

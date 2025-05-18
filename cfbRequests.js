@@ -23,7 +23,7 @@ class cfbRequests {
 
     /**
      * Constructor that seeks to pre-allocate as much as possible
-     * 
+     *
      * @param {string} - Bearer key from https://collegefootballdata.com
      */
     constructor(apiKey) {
@@ -56,10 +56,10 @@ class cfbRequests {
      * Method to get a game by ID. Note that the year parameter is not
      * necessary in the raw API, but is in the cfb.js API, so we're passing
      * years around all day
-     * 
+     *
      * Documentation for the endpoint:
      * https://github.com/CFBD/cfb.js/blob/master/docs/GamesApi.md#getgames
-     * 
+     *
      * @param {number} year - The year the game was played
      * @param {number} gameId - The gameID itself
      * @returns {string} - An HTML string that displays things nicely
@@ -68,20 +68,35 @@ class cfbRequests {
         /* prepare options */
         const opts = { "id": gameId };
 
+	let gamesArray, game;
         /* get the game */
         try {
             /* get the game from cfb.js */
-            const gamesArray = await this.gamesApi.getGames(year, opts);
-            const game = gamesArray[0]; /* only looking for the 1 id */
+            gamesArray = await this.gamesApi.getGames(year, opts);
+            game = gamesArray[0]; /* only looking for the 1 id */
+	} catch (error) {
+	    throw new Error(
+		"Failed to get game with id " + gameId + " from the CFB API"
+	    );
+	}
 
+	try {
             /* format the game */
-            game["startDate"] = this.isoToHuman(game["startDate"]);
+
+	    /* sometimes startDate doesn't exist now */
+	    if (game["startDate"]) {
+                game["startDate"] = this.isoToHuman(game["startDate"]);
+            }
 
             /* Create a table */
             let gameTable = "<table>";
             for (let key of Object.keys(game)) {
+		if (game[key] == null) {
+		    game[key] = "-";
+		}
+
                 gameTable =
-                    gameTable + 
+                    gameTable +
                     `<tr><th>${key}</th>` +
                     `<td>${game[key]}</td></tr>`
             }
@@ -92,18 +107,17 @@ class cfbRequests {
                 */
             return [ game, gameTable ];
         } catch(error) {
-            console.log("Failed to get game", gameId, ":\n", error);
-            return {};
+	    throw new Error("Failed to format game with id " + gameId);
         }
     }
 
     /**
      * Method to get the season of a team (I know it's the wrong endpoint, it's
      * on my to-do list. It also is an endpoint that consistantly works, so...
-     * 
+     *
      * It goes from querying cfb.js, to formatting cfb.js, to creating an
-     * HTML-stlye table
-     * 
+     * HTML-style table
+     *
      * @param {number} year - the year we want to get
      * @param {string} team - the name of the team we want to get
      * @returns {string} - returns an HTML-formatted table
@@ -170,10 +184,10 @@ class cfbRequests {
 
     /**
      * Method to get all matchups with the name of both teams
-     * 
+     *
      * Goes from query cfb.js, to formatting properties, to generating an HTML-
      * style table string
-     * 
+     *
      * @param {string} team1 - the name of the first team
      * @param {string} team2 - the name of the second team
      * @returns {Object<string>} A triple of table, summary of record. All
@@ -217,7 +231,7 @@ class cfbRequests {
             for (let game of rawData["games"]) {
                 if (game["winner"] === null)
                     game["winner"] = "Tie";
-            
+
                 /* For some reason the post-conversion game["neutralSite"]
                 comes through sometimes */
                 if (game["neutralSite"] === true ||
@@ -247,7 +261,7 @@ class cfbRequests {
             let record = "Overall Record: " +
                 `${rawData.team1Wins} (${team1}) - ` +
                 `${rawData.team2Wins} (${team2})`
-            
+
             return [table, summary, record];
         }
 
@@ -260,10 +274,10 @@ class cfbRequests {
 
     /**
      * Converts ISO time to human time, so we can read it more easily.
-     * 
+     *
      * Note that this function is intentionally left synchronous, because the
      * overhead of async is bigger than the function
-     * 
+     *
      * @param {string} isoTime - the time represented in ISO time, for instance
      *                      2024-12-09T15:29:29-05:00
      * @returns {string} - formatted human readable time. Above time is
@@ -281,14 +295,14 @@ class cfbRequests {
 
     /**
      * Converts a gameId and year into a hyperlink to the game with that gameId
-     * 
+     *
      * Note that this function is intentionally left synchronous, because the
      * overhead of async is bigger than the function
-     * 
+     *
      * @param {number} id - The gameId we would like to convert
      * @param {number} year - The year the game was played. This is necessary
      *                  presumably because of a mistake when making cfb.js
-     * 
+     *
      * @returns {string} - An HTML-formatted hyperlink to the game-by-id
      *                  endpoint
      */
@@ -298,15 +312,15 @@ class cfbRequests {
 
     /**
      * Creates a table with headers and data.
-     * 
+     *
      * @param {Array<string>} headers - it's an array of human-readable
      * strings. This is what we use to determine which headers are "on" (the
      * full output can be quite long)
-     * 
+     *
      * @param {Array<string>} internalHeaders - it's an array of strings that
      * can be used to access the each property for each element in the data
      * array
-     * 
+     *
      * @param {Array<Object>} data - an array of matches objects. Properties
      * are read out based on headers and internalHeaders
     */
@@ -329,7 +343,7 @@ class cfbRequests {
         strBody = strBody + "</tbody>";
 
         const strTable = "<table>" + strHead + strBody + "</table>";
-        
+
         return strTable;
     }
 }
