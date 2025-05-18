@@ -65,6 +65,25 @@ button {
     opacity: 96%
 }
 
+.charts {
+    display: flex;
+    flex-direction: row;
+}
+
+pie-chart {
+    display: block;
+
+    /* to avoid Flash of Unstyled Content (FoUC)
+      https://en.wikipedia.org/wiki/Flash_of_unstyled_content
+      */
+    visibility: hidden;
+  
+    /* want it to fill up as much of the parent div as it can */
+    width: 100%;
+    padding: 4rem;
+
+}
+
 mark {
     background-color: rgb(255, 255, 255, 0.7);
 }

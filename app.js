@@ -54,6 +54,9 @@ app.use(express.static('css', { maxAge: '30d' }));
 /* make the images and video available */
 app.use("/media", express.static("media", { maxAge: '30d' }));
 
+/* make web components available */
+app.use("/wc", express.static("web_components", { maxAge: '30d' }));
+
 
 app.use(bodyParser.urlencoded({ extended: false }));
 

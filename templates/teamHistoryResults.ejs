@@ -5,13 +5,26 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>College Football Stats</title>
         <link rel="stylesheet" type="text/css" href="./style.css">
+        <script src= "/wc/pie.js" defer></script>
     </head>
 
     <body>
         <h1><mark><%- team1 %> vs <%- team2 %></mark></h1>
-        <div class ="results">
+        <div class="results">
             <%- summary %>
         </div>
+
+        <div class="results">
+            <div class ="charts">
+                <pie-chart>
+                    55 45
+                </pie-chart>
+                <pie-chart>
+                    55 45
+                </pie-chart>
+            </div>
+        </div>
+
 
         <br><br>
         <div class ="results">
