@@ -7,24 +7,23 @@
         <link rel="stylesheet" type="text/css" href="./style.css">
     </head>
 
-    <body>
-        <h1><mark>Game <%- id %> Stats</mark></h1>
+    <body><main>
+        <h1>Game <%- id %> Stats</h1>
 
-        <div class ="results">
+        <p>
 	    <% if (homeTeam && awayTeam) { %>
-		<%- homeTeam %> vs <%- awayTeam %> <- year %>
+		<%- homeTeam %> vs <%- awayTeam %> <%- year %>
 	    <% } else { %>
 		Teams Unknown (likely not recieved from API)
 	    <% } %>
 
-            <%- summary %>
-        </div>
-        <br><br>
+        <%- summary %>
+        </p>
 
-        <div class="results">
+        <div><!--  class="results">-->
             <%- stats %>
         </div>
 
         <%- include("footer") %>
-    </body>
+    </main></body>
 </html>

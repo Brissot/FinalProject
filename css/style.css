@@ -1,65 +1,21 @@
-html {font-size: 24px; background-image: url("../media/secu-compressed.avif");
+html {font-size: 24px; background-image: url("../media/secu-small.avif");
     background-repeat: repeat-y; background-size: 100%}
-
 main {max-width: 800px; margin: auto; padding: 2rem 2rem 2rem 2rem;
     background-color: white}
-
 h1 {font-size: 2rem; text-align: center; font-family: Trebuchet, sans-serif}
 
 input, button {font-size: 1.5rem}
 
-.results {overflow-x: scroll; background: beige}
-
+.results {overflow-x: scroll}
+table {background: beige}
 th {background: grey; color: white}
 tr:nth-child(odd) {background-color: #f2f2f2}
-
-mark {
-    background-color: rgb(255, 255, 255, 0.7);
-}
 
 figure {max-width: 10rem; margin: auto}
 img, figcaption {text-align: center; max-width: 100%}
 
 /* the mobile response */
 @media screen and (max-width: 600px) {
-    html {
-        background-image: url("../media/secu-mobile.avif");
-        font-size: 24px;
-    }
-
-    body {
-        padding: 0;
-    }
-
-    h1 {
-        font-size: 2rem;
-        padding: 0;
-        margin-top: 3rem;
-    }
-
-    .links {
-        font-size: 1rem;
-        margin: 0;
-        padding: 0;
-        margin-bottom: 1rem;
-    }
-
-    form {
-        padding: 0.5rem;
-        margin: 0;
-        margin-top: 3rem;
-        font-size: 1rem;
-    }
-
-    input {
-        font-size: 1rem;
-    }
-
-    button {
-        font-size: 1rem;
-    }
-
-    .footer {
-        width: 128px;
-    }
+    html {background-image: url("../media/secu-mobile.avif")}
+    input, button {font-size: 1rem}
 }
