@@ -1,6 +1,5 @@
 /* Check .env Environmental Variables */
 const path = require("path");
-const bodyParser = require("body-parser");
 require("dotenv").config({
     path: path.resolve(__dirname, '.env')
 });
@@ -54,8 +53,8 @@ app.use(express.static('css', { maxAge: '30d' }));
 /* make the images and video available */
 app.use("/media", express.static("media", { maxAge: '30d' }));
 
-
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 /* directory where templates will reside */
 app.set("views", path.resolve(__dirname, "templates"));
@@ -90,7 +89,7 @@ app.post("/teamStats", async (request, response) => {
         name: `Stats for ${team} in ${year}`,
         data: variables.stats
     };
-    await addSearch(client, databaseAndCollection, request);
+    //await addSearch(client, databaseAndCollection, request);
     response.render("teamStatsResults", variables);
 });
 
@@ -115,7 +114,7 @@ app.post("/teamHistory", async (request, response) => {
         name: `${team1} vs ${team2} History`,
         data: `${variables.summary}<br>${variables.data}`
     };
-    await addSearch(client, databaseAndCollection, request);
+    //await addSearch(client, databaseAndCollection, request);
     response.render("teamHistoryResults", variables);
 });
 
@@ -222,9 +221,9 @@ const client = new MongoClient(uri, {
 async function ping() {
     try {
         // Connect the client to the server (optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         // Send a ping to confirm a successful connection
-        await client.db(dbName).command({ ping: 1 });
+        // await client.db(dbName).command({ ping: 1 });
         // console.log("MongoDB Connection Successful!");
     }
     finally {

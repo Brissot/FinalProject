@@ -1,87 +1,30 @@
-html {
-    font-size: 16px;
-    color: rgb(0, 0, 0, 1);
+html {font-size: 24px; background-image: url("../media/secu-compressed.avif");
+    background-repeat: repeat-y; background-size: 100%}
 
-    background-image: url("../media/secu-compressed.avif");
-    background-position: center;
-    background-repeat: repeat-y;
-    background-size: 100%
-}
+main {max-width: 800px; margin: auto; padding: 2rem 2rem 2rem 2rem;
+    background-color: white}
 
-h1 {
-    font-size: 4rem;
-    text-align: center;
-    opacity: 1;
-    font-family: Trebuchet, sans-serif;
-    padding: 3rem;
-    opacity: 0.96
-}
+h1 {font-size: 2rem; text-align: center; font-family: Trebuchet, sans-serif}
 
-.footer {
-    width: 256px;
-    height: auto;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 0;
-    background-color: white;
-    text-align: center
-}
+input, button {font-size: 1.5rem}
 
-/* Unregistered Hypercam 2 kind of beat*/
-.version {
-    padding: 0;
-    margin: 0;
-    opacity: 1
-}
+.results {overflow-x: scroll; background: beige}
 
-.links {
-    display: block;
-    text-align: center;
-    font-size: 4rem;
-    padding: 3rem;
-    margin-bottom: 0.2rem;
-}
-
-form {
-    background-color: white;
-    border: 1px solid black;
-    padding: 2rem;
-    margin: 8rem;
-    font-size: 2rem;
-    opacity: 0.96
-}
-
-input {
-    font-size: 2rem;
-}
-
-button {
-    font-size: 2rem;
-}
-
-.results {
-    background-color: white;
-    border: 1px solid black;
-    margin: auto;
-    width: 80%;
-    text-align: center;
-    opacity: 96%
-}
+th {background: grey; color: white}
+tr:nth-child(odd) {background-color: #f2f2f2}
 
 mark {
     background-color: rgb(255, 255, 255, 0.7);
 }
 
-table {
-    margin: auto;
-}
+figure {max-width: 10rem; margin: auto}
+img, figcaption {text-align: center; max-width: 100%}
 
 /* the mobile response */
 @media screen and (max-width: 600px) {
     html {
         background-image: url("../media/secu-mobile.avif");
-        font-size: 16px;
+        font-size: 24px;
     }
 
     body {
