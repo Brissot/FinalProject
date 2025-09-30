@@ -127,15 +127,15 @@ class cfbRequests {
 
         /* Header and HTML step. Order matters, these match up by index */
         const headers = ["Week", "Season Type",
-            "Start Date", "Home Team",
-            "Home Conference", "Home Score",
-            "Away Team", "Away Conference",
-            "Away Score", "ID"];
+                         "Start Date", "Home Team",
+                         "Home Conference", "Home Score",
+                         "Away Team", "Away Conference",
+                         "Away Score", "ID"];
         const internalHeaders = ['week', 'seasonType',
-            'startDate', 'homeTeam',
-            'homeConference', 'homeScore',
-            'awayTeam', 'awayConference',
-            'awayScore', "id"];
+                                 'startDate', 'homeTeam',
+                                 'homeConference', 'homeScore',
+                                 'awayTeam', 'awayConference',
+                                 'awayScore', "id"];
 
         try {
             /* get the data from cfb.js */
@@ -148,7 +148,7 @@ class cfbRequests {
             await rawData.sort((first, second) => second.week - first.week);
 
             /* Formatting step. Note that this is N*Columns function calls. I
-                am hoping that the compiler makes it okay */
+               am hoping that the compiler makes it okay */
             for (let game of rawData) {
                 /* Human readable times */
                 game["startDate"] = this.isoToHuman(game["startDate"]);
@@ -160,6 +160,47 @@ class cfbRequests {
             const table = this.createTable(headers, internalHeaders, rawData);
 
             return table;
+        }
+        catch (error) {
+            console.log("Betting API: Failed to retreive data:", error);
+        }
+    }
+
+        /**
+     * Method to get the season of a team (I know it's the wrong endpoint, it's
+     * on my to-do list. It also is an endpoint that consistantly works, so...
+     *
+     * It goes from querying cfb.js, to formatting cfb.js, to creating an
+     * HTML-style table
+     *
+     * @param {number} year - the year we want to get
+     * @param {string} team - the name of the team we want to get
+     * @returns {string} - returns an HTML-formatted table
+     */
+    async getTeam(year, team) {
+        const opts = { year: year, team: team, seasonType: "both" };
+
+        try {
+            /* get the data from cfb.js */
+            const rawData = await this.bettingApi.getLines(opts);
+
+            /* What did we get? */
+            console.log(year, team, "Season: Got", rawData.length);
+
+            /* Sort into reverse chronological order (recent games first) */
+            await rawData.sort((first, second) => second.week - first.week);
+
+            /* Formatting step. Note that this is N*Columns function calls. I
+               am hoping that the compiler makes it okay */
+            for (let game of rawData) {
+                /* Human readable times */
+                game["startDate"] = this.isoToHuman(game["startDate"]);
+
+                /* Add hyperlinks instead of a raw ID */
+                game["id"] = this.idToHyperlink(game["id"], year)
+            }
+
+            return rawData;
         }
         catch (error) {
             console.log("Betting API: Failed to retreive data:", error);
@@ -220,7 +261,7 @@ class cfbRequests {
 
             /* What did we get? */
             console.log(`${team1} vs ${team2}: Got`,
-                rawData["games"].length
+                        rawData["games"].length
             );
 
             rawData["games"].sort(
@@ -233,13 +274,13 @@ class cfbRequests {
                     game["winner"] = "Tie";
 
                 /* For some reason the post-conversion game["neutralSite"]
-                comes through sometimes */
+                   comes through sometimes */
                 if (game["neutralSite"] === true ||
                     game["neutralSite"] === "Yes") {
                     game["neutralSite"] = "Yes";
                 }
                 else if (game["neutralSite"] === false ||
-                        game["neutralSite"] === "No") {
+                         game["neutralSite"] === "No") {
                     game["neutralSite"] = "No";
                 }
                 else
@@ -259,10 +300,10 @@ class cfbRequests {
 
             let summary = `${team1} vs. ${team2}`;
             let record = "Overall Record: " +
-                `${rawData.team1Wins} (${team1}) - ` +
-                `${rawData.team2Wins} (${team2})`
+                         `${rawData.team1Wins} (${team1}) - ` +
+                         `${rawData.team2Wins} (${team2})`
 
-            return [table, summary, record];
+                   return [table, summary, record];
         }
 
         catch (error) {
@@ -271,6 +312,7 @@ class cfbRequests {
             return [{}, `${team1} vs. ${team2}`, "No Matches Found"];
         }
     }
+
 
     /**
      * Converts ISO time to human time, so we can read it more easily.
@@ -323,7 +365,7 @@ class cfbRequests {
      *
      * @param {Array<Object>} data - an array of matches objects. Properties
      * are read out based on headers and internalHeaders
-    */
+     */
     createTable(headers, internalHeaders, data) {
         const strInnerHead = headers.reduce(
             (acc, header) =>

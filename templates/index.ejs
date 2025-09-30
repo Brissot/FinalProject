@@ -1,18 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html dir="ltr" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Search for College Football Stats">
 <title>College Football Stats</title>
-<link rel="stylesheet" type="text/css" href="./style.css">
+<style>
+ html {font: 24px serif}
+ body {display: flex; flex-direction: column; min-height: 100%}
+ main {flex: 1}
+ article {min-height: 25rem}
+ h1 {font: 2rem}
+ main {max-width: 800px; margin: auto}
+ form {margin: auto; text-align: center}
+ input, button {font-size: 1.5rem; padding: 0.25rem}
+ header {min-height: 2rem}
+ footer {min-height: 2rem}
+
+ @media screen and (max-width: 600px) {}
+</style>
 </head>
 
 <body><main>
+<article>
+<header>
 <h1>College Football Stats</h1>
+</header>
 
-<p><a href="/teamStats">Get stats for a team by year</a></p>
-<p><a href="/teamHistory">Get the history between two teams</a></p>
-<p><a href="/searchHistory">Get past searches</a></p>
+<form role="search" action="/team">
+<label for="team">Search for a Team</label><br>
+<input type="search" id="team" name="q" placeholder="Search for a Team"
+       value="Maryland">
+<button type="submit">Search</button>
+</form>
+</article>
 
-<%- include("footer") %>
+<footer><hr>Copyright &copy;
+<time datetime="2024">2024</time>-<time datetime="2025">2025</time>
+<strong>Lauren Hamilton, Naaman Trumbull, Sid Su</strong></footer>
 </main></body></html>

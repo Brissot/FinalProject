@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Stats</title>
+<title><%- team %></title>
 <style>
  html {font: 24px sans-serif}
  main {max-width: 800px; margin: auto}
@@ -21,11 +21,11 @@
 </head>
 
 <body><main>
-<h1><%- team %> <%- year %> Stats</h1>
+<h1><%= team %></h1>
 
-<h2>A New Layout</h2>
-<details>
-<summary class="game victory">
+<h2>Terps</h2>
+<ul>
+<li class="game victory">
 <div class="game-info">
 <p class="game-time"><strong>Regular Season</strong><br>
 <time datetime="2025-08-30 12:00">8/30 12pm</time><br>
@@ -42,12 +42,9 @@ Week 1</p>
 <tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
 <tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
 </table>
-</summary>
-<p>Some nice content. In the works :)</p>
-</details>
+</li>
 
-<details>
-<summary class="game defeat">
+<li class="game defeat">
 <div class="game-info">
 <p class="game-time"><strong>Regular Season</strong><br>
 <time datetime="2025-08-30 12:00">8/30 12pm</time><br>
@@ -64,16 +61,29 @@ Week 1</p>
 <tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
 <tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
 </table>
-</summary>
-<p>Some nice content. In the works :)</p>
-</details>
+</li>
 
-<h2><%- summary %></h2>
-
-<div class="results">
-<%- stats %>
+<li class="game defeat">
+<div class="game-info">
+<p class="game-time"><strong><%=rawData[0].seasonType%></strong><br>
+<time datetime="<%=rawData[0].startDate%>"><%=rawData[0].startDate%></time><br>
+Week <%=rawData[0].week%></p>
+<p>Defeat</p>
 </div>
 
-<%- include("footer") %>
+<table class="big-score">
+<tr><th><%=rawData[0].awayTeam%></th><td><%=rawData[0].awayScore%></td></tr>
+<tr><th><%=rawData[0].homeTeam%></th><td><%=rawData[0].homeScore%></td></tr>
+</table>
+<table class="line-score">
+<tr><th>1</th><th>2</th><th>3</th><th>4</th><th>T</th></tr>
+<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
+<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
+</table>
+</li>
+
+</ul>
+
+
 </main></body>
 </html>

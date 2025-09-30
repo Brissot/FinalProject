@@ -93,6 +93,32 @@ app.post("/teamStats", async (request, response) => {
     response.render("teamStatsResults", variables);
 });
 
+app.get("/team", async (request, response) => {
+    /* Get the required parameters out of the request body */
+    let team= request.query["q"];
+    let year= 2024;
+    const rawData = await cfbRadio.getTeam(year, team);
+
+    if (rawData.length === 0) {
+        throw new Error("Team Does Not Exist");
+    }
+
+    let variables = {
+        team: team,
+        year: year,
+        rawData: rawData
+    };
+
+    console.log(rawData);
+    request = {
+        name: `Stats for ${team} in ${year}`,
+        data: variables.stats
+    };
+
+    //await addSearch(client, databaseAndCollection, request);
+    response.render("team", variables);
+});
+
 app.get("/teamHistory", (request, response) => {
     response.render("teamHistory");
 });
