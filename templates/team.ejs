@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Stats</title>
+<style>
+ html {font: 24px sans-serif}
+ main {max-width: 800px; margin: auto}
+ td {min-width: 2rem; text-align: right}
+ th {text-align: right}
+ .victory {background: #ecf2ff}
+ .defeat {background: #fff1f3}
+ .game {display: flex; place-content: space-evenly; place-items: center}
+ .game-info {display: flex; flex-direction: column; place-items: center;
+     place-content: space-evenly; text-align: center}
+ .game-time {font-size: 0.5rem}
+ .big-score, .line-score {margin: 2rem; font-family: monospace}
+ .big-score {font-size: 1.5rem}
+</style>
+</head>
+
+<body><main>
+<h1><%- team %> <%- year %> Stats</h1>
+
+<h2>A New Layout</h2>
+<details>
+<summary class="game victory">
+<div class="game-info">
+<p class="game-time"><strong>Regular Season</strong><br>
+<time datetime="2025-08-30 12:00">8/30 12pm</time><br>
+Week 1</p>
+<p>Victory</p>
+</div>
+
+<table class="big-score">
+<tr><th>FAU</th><td>7</td></tr>
+<tr><th>UMD</th><td>39</td></tr>
+</table>
+<table class="line-score">
+<tr><th>1</th><th>2</th><th>3</th><th>4</th><th>T</th></tr>
+<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
+<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
+</table>
+</summary>
+<p>Some nice content. In the works :)</p>
+</details>
+
+<details>
+<summary class="game defeat">
+<div class="game-info">
+<p class="game-time"><strong>Regular Season</strong><br>
+<time datetime="2025-08-30 12:00">8/30 12pm</time><br>
+Week 1</p>
+<p>Defeat</p>
+</div>
+
+<table class="big-score">
+<tr><th>FAU</th><td>7</td></tr>
+<tr><th>UMD</th><td>39</td></tr>
+</table>
+<table class="line-score">
+<tr><th>1</th><th>2</th><th>3</th><th>4</th><th>T</th></tr>
+<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
+<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
+</table>
+</summary>
+<p>Some nice content. In the works :)</p>
+</details>
+
+<h2><%- summary %></h2>
+
+<div class="results">
+<%- stats %>
+</div>
+
+<%- include("footer") %>
+</main></body>
+</html>
