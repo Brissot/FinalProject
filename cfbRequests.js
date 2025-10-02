@@ -177,7 +177,7 @@ class cfbRequests {
      * @param {string} team - the name of the team we want to get
      * @returns {string} - returns an HTML-formatted table
      */
-    async getTeam(year, team) {
+    async getMatches(year, team) {
         const opts = { year: year, team: team, seasonType: "both" };
 
         try {
@@ -191,9 +191,6 @@ class cfbRequests {
                 `${baseurl}games?year=2023&team=${team}`, {headers: reqHeaders});
 
             const rawData= await req.json();
-
-            console.log(rawData);
-            /*const rawData = await this.bettingApi.getLines(opts);*/
 
             /* What did we get? */
             console.log(year, team, "Season: Got", rawData.length);
@@ -209,13 +206,51 @@ class cfbRequests {
 
                 /* Add hyperlinks instead of a raw ID */
                 game["id"] = this.idToHyperlink(game["id"], year)
+
+                /* Make spaces Non-breaking */
+                game["homeTeam"]= game["homeTeam"].replaceAll(" ", "&nbsp;");
+                game["awayTeam"]= game["awayTeam"].replaceAll(" ", "&nbsp;");
+
+                if (game["homeTeam"] === team) {
+                    if (game["homePoints"] > game["awayPoints"])
+                        game["outcome"]= "Victory";
+                    else if (game["homePoints"] < game["awayPoints"])
+                        game["outcome"]= "Defeat";
+                    else
+                        game["outcome"]= "Tie";
+                } else {
+                    if (game["homePoints"] > game["awayPoints"])
+                        game["outcome"]= "Defeat";
+                    else if (game["homePoints"] < game["awayPoints"])
+                        game["outcome"]= "Victory";
+                    else
+                        game["outcome"]= "Tie";
+                }
             }
 
+
             return rawData;
+
         }
         catch (error) {
             console.log("Betting API: Failed to retreive data:", error);
         }
+    }
+
+    async getTeam(conference) {
+        /* get the data from cfb.js */
+        const baseurl= "https://api.collegefootballdata.com/"
+        const reqHeaders= new Headers();
+        reqHeaders.set("accept", "application/json");
+        reqHeaders.set("Authorization", this.ApiKeyAuth.apiKey);
+
+        console.log("Our conference is: " + conference);
+        const req= await fetch(
+            `${baseurl}teams?conference=${'B1G'}`, {headers: reqHeaders});
+
+        const rawData= await req.json();
+
+        return rawData;
     }
 
     /* Not currently used. Probably doesn't work */

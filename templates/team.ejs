@@ -9,14 +9,13 @@
  main {max-width: 800px; margin: auto}
  td {min-width: 2rem; text-align: right}
  th {text-align: right}
- .victory {background: #ecf2ff}
- .defeat {background: #fff1f3}
+ .Victory {background: #ecf2ff}
+ .Defeat {background: #fff1f3}
  .game {display: flex; place-content: space-evenly; place-items: center}
  .game-info {display: flex; flex-direction: column; place-items: center;
-     place-content: space-evenly; text-align: center}
+     place-content: space-evenly; text-align: center; margin: 0.5rem}
  .game-time {font-size: 0.5rem}
  .big-score, .line-score {margin: 2rem; font-family: monospace}
- .big-score {font-size: 1.5rem}
 </style>
 </head>
 
@@ -64,17 +63,17 @@ Week 1</p>
 </li>
 
 <%for (let i=0; i<rawData.length; i++) {%>
-<li class="game defeat">
+<li class="game <%=rawData[i].outcome%>">
 <div class="game-info">
 <p class="game-time"><strong><%=rawData[i].seasonType%></strong><br>
 <time datetime="<%=rawData[0].startDate%>"><%=rawData[i].startDate%></time><br>
 Week <%=rawData[i].week%></p>
-<p>Defeat</p>
+<p><%=rawData[i].outcome%></p>
 </div>
 
 <table class="big-score">
-<tr><th><%=rawData[i].awayTeam%></th><td><%=rawData[i].awayPoints%></td></tr>
-<tr><th><%=rawData[i].homeTeam%></th><td><%=rawData[i].homePoints%></td></tr>
+<tr><th><%-rawData[i].awayTeam%></th><td><%=rawData[i].awayPoints%></td></tr>
+<tr><th><%-rawData[i].homeTeam%></th><td><%=rawData[i].homePoints%></td></tr>
 </table>
 <table class="line-score">
 <tr><th>1</th><th>2</th><th>3</th><th>4</th><th>T</th></tr>

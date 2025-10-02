@@ -97,7 +97,19 @@ app.get("/team", async (request, response) => {
     /* Get the required parameters out of the request body */
     let team= request.query["q"];
     let year= 2024;
-    const rawData = await cfbRadio.getTeam(year, team);
+    const rawData = await cfbRadio.getMatches(year, team);
+
+    let teamConference;
+    if (rawData[0].homeTeam === team)
+        teamConference= rawData[0].homeConference;
+    else
+        teamConference= rawData[0].awayConference;
+
+    console.log("hwat? " + teamConference);
+
+    const conferenceInfo = await cfbRadio.getTeam(teamConference);
+
+    console.log("Some Nice Conference Info: " + conferenceInfo);
 
     if (rawData.length === 0) {
         throw new Error("Team Does Not Exist");
@@ -109,7 +121,6 @@ app.get("/team", async (request, response) => {
         rawData: rawData
     };
 
-    console.log(rawData);
     request = {
         name: `Stats for ${team} in ${year}`,
         data: variables.stats
