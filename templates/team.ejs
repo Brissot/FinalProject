@@ -63,27 +63,26 @@ Week 1</p>
 </table>
 </li>
 
+<%for (let i=0; i<rawData.length; i++) {%>
 <li class="game defeat">
 <div class="game-info">
-<p class="game-time"><strong><%=rawData[0].seasonType%></strong><br>
-<time datetime="<%=rawData[0].startDate%>"><%=rawData[0].startDate%></time><br>
-Week <%=rawData[0].week%></p>
+<p class="game-time"><strong><%=rawData[i].seasonType%></strong><br>
+<time datetime="<%=rawData[0].startDate%>"><%=rawData[i].startDate%></time><br>
+Week <%=rawData[i].week%></p>
 <p>Defeat</p>
 </div>
 
 <table class="big-score">
-<tr><th><%=rawData[0].awayTeam%></th><td><%=rawData[0].awayScore%></td></tr>
-<tr><th><%=rawData[0].homeTeam%></th><td><%=rawData[0].homeScore%></td></tr>
+<tr><th><%=rawData[i].awayTeam%></th><td><%=rawData[i].awayPoints%></td></tr>
+<tr><th><%=rawData[i].homeTeam%></th><td><%=rawData[i].homePoints%></td></tr>
 </table>
 <table class="line-score">
 <tr><th>1</th><th>2</th><th>3</th><th>4</th><th>T</th></tr>
-<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
-<tr><td>0</td><td>3</td><td>10</td><td>15</td><td>28</td></tr>
+<tr><% for (let j=0; j<4; j++) {%><td><%=rawData[i].awayLineScores[j]%></td><%}%><td><%=rawData[i].awayPoints%></td></tr>
+<tr><% for (let j=0; j<4; j++) {%><td><%=rawData[i].homeLineScores[j]%></td><%}%><td><%=rawData[i].homePoints%></td></tr>
 </table>
 </li>
-
+<%}%>
 </ul>
-
-
 </main></body>
 </html>

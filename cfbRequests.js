@@ -182,7 +182,18 @@ class cfbRequests {
 
         try {
             /* get the data from cfb.js */
-            const rawData = await this.bettingApi.getLines(opts);
+            const baseurl= "https://api.collegefootballdata.com/"
+            const reqHeaders= new Headers();
+            reqHeaders.set("accept", "application/json");
+            reqHeaders.set("Authorization", this.ApiKeyAuth.apiKey);
+
+            const req= await fetch(
+                `${baseurl}games?year=2023&team=${team}`, {headers: reqHeaders});
+
+            const rawData= await req.json();
+
+            console.log(rawData);
+            /*const rawData = await this.bettingApi.getLines(opts);*/
 
             /* What did we get? */
             console.log(year, team, "Season: Got", rawData.length);
