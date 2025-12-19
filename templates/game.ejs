@@ -11,11 +11,7 @@
         <h1>Game <%- id %> Stats</h1>
 
         <p>
-	    <% if (homeTeam && awayTeam) { %>
-		<%- homeTeam %> vs <%- awayTeam %> <%- year %>
-	    <% } else { %>
-		Teams Unknown (likely not recieved from API)
-	    <% } %>
+	    <% if (homeTeam && awayTeam) { %><%- homeTeam %> vs <%- awayTeam %> <%- year %><% } else { %>Teams Unknown (likely not recieved from API)<% } %>
 
         <%- summary %>
         </p>

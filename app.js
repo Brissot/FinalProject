@@ -9,13 +9,10 @@ const express = require("express"); /* Accessing express module */
 
 const cfbRequests = require("./cfbRequests");
 
-/* Check Arguments */
-if (process.argv.length !== 3) {
-    console.error("Usage app.js <port number>");
-    process.exit(1);
-}
 /* retrieve argument. if deployed, make hostname retrieval more dynamic */
 const portNumber = process.argv[2];
+if (portNumber === null)
+    portNumber = process.env.PORT;
 const hostname = "localhost";
 
 /* Get the Environmental Variables out */
@@ -43,7 +40,7 @@ const app = express(); /* app is a request handler function */
 app.use(
     '/favicon.ico',
     express.static(
-        "media/american-football-transparent.png", {  maxAge: '30d' }
+        "media/american-football-transparent.png", { maxAge: '30d' }
     )
 );
 
@@ -95,15 +92,15 @@ app.post("/teamStats", async (request, response) => {
 
 app.get("/team", async (request, response) => {
     /* Get the required parameters out of the request body */
-    let team= request.query["q"];
-    let year= 2024;
+    let team = request.query["q"];
+    let year = 2024;
     const rawData = await cfbRadio.getMatches(year, team);
 
     let teamConference;
     if (rawData[0].homeTeam === team)
-        teamConference= rawData[0].homeConference;
+        teamConference = rawData[0].homeConference;
     else
-        teamConference= rawData[0].awayConference;
+        teamConference = rawData[0].awayConference;
 
     console.log("hwat? " + teamConference);
 
@@ -175,33 +172,33 @@ app.get("/game", async (request, response, next) => {
 
     if (year && id) {
         /* game. singular. object. */
-	const [ game, gameTable ] = await cfbRadio.getGame(year, id);
+        const [game, gameTable] = await cfbRadio.getGame(year, id);
 
         variables = {
-	    id: id,
-	    homeTeam: game["homeTeam"],
-	    awayTeam: game["awayTeam"],
-	    year: game["season"],
-	    summary: "Game Summary",
-	    stats: gameTable
+            id: id,
+            homeTeam: game["homeTeam"],
+            awayTeam: game["awayTeam"],
+            year: game["season"],
+            summary: "Game Summary",
+            stats: gameTable
         };
         response.render("game", variables);
     }
     else {
-        response.send("Required year or id not sent")
+        response.send("Required year or id not sent");
     }
 });
 
 /* A nice error page */
 app.use((error, request, response, next) => {
     /* internally log the stack trace */
-    console.error(error.stack)
+    console.error(error.stack);
 
     variables = {
-	message: error.message
+        message: error.message
     };
     response.status(500).render("error", variables);
-})
+});
 
 /* start express :) */
 app.listen(portNumber, (err) => {
@@ -277,7 +274,7 @@ async function insertApplicant(client, applicant) {
 
         const result = await collection.insertOne(applicant);
 
-        return result
+        return result;
     }
     finally {
         // Ensures that the client will close when you finish/error
@@ -304,8 +301,8 @@ async function getSearchHistory(client, databaseAndCollection) {
     let searchResults = "";
     for (let r of result) {
         searchResults = `<div class="results"><h2>${r.name}</h2>` +
-                        `<br><p>${r.data}</p>"</div>"` +
-                        searchResults;
+            `<br><p>${r.data}</p>"</div>"` +
+            searchResults;
     }
 
     return searchResults;
