@@ -9,10 +9,15 @@ const express = require("express"); /* Accessing express module */
 
 const cfbRequests = require("./cfbRequests");
 
+/* Check Arguments */
+//if (process.argv.length !== 3) {
+//    console.error("Usage app.js <port number>");
+//    process.exit(1);
+//}
 /* retrieve argument. if deployed, make hostname retrieval more dynamic */
-const portNumber = process.argv[2];
-if (portNumber === null)
-    portNumber = process.env.PORT;
+var portNumber = process.argv[2];
+if (!portNumber)
+    portNumber = 80;
 const hostname = "localhost";
 
 /* Get the Environmental Variables out */
