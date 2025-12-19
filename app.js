@@ -16,8 +16,8 @@ const cfbRequests = require("./cfbRequests");
 //    process.exit(1);
 //}
 /* retrieve argument. if deployed, make hostname retrieval more dynamic */
-const portNumber = process.argv[2];
-if (portNumber === null)
+var portNumber = process.argv[2];
+if (!portNumber)
     portNumber = 80;
 const hostname = "localhost";
 
