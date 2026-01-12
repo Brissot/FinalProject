@@ -1,6 +1,9 @@
 node_modules
 .env
 
+.vscode
+jsconfig.json
+
 # EMACS
 *~
 \#*\#

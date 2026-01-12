@@ -3,8 +3,7 @@
  * stats (through the cfb.js API), and formatting the college football stats
  * into HTML
  */
-const cfbAPI = require('cfb.js');
-
+import cfbAPI from 'cfb.js';
 
 /**
  * The main class that handles getting from cfb.js and formatting it in a nice
@@ -19,7 +18,7 @@ class cfbRequests {
     #matchApi;
     #gamesApi;
 
-    #dateFormatter
+    #dateFormatter;
 
     /**
      * Constructor that seeks to pre-allocate as much as possible
@@ -68,46 +67,46 @@ class cfbRequests {
         /* prepare options */
         const opts = { "id": gameId };
 
-	let gamesArray, game;
+        let gamesArray, game;
         /* get the game */
         try {
             /* get the game from cfb.js */
             gamesArray = await this.gamesApi.getGames(year, opts);
             game = gamesArray[0]; /* only looking for the 1 id */
-	} catch (error) {
-	    throw new Error(
-		"Failed to get game with id " + gameId + " from the CFB API"
-	    );
-	}
+        } catch (error) {
+            throw new Error(
+                "Failed to get game with id " + gameId + " from the CFB API"
+            );
+        }
 
-	try {
+        try {
             /* format the game */
 
-	    /* sometimes startDate doesn't exist now */
-	    if (game["startDate"]) {
+            /* sometimes startDate doesn't exist now */
+            if (game["startDate"]) {
                 game["startDate"] = this.isoToHuman(game["startDate"]);
             }
 
             /* Create a table */
             let gameTable = "<table>";
             for (let key of Object.keys(game)) {
-		if (game[key] == null) {
-		    game[key] = "-";
-		}
+                if (game[key] == null) {
+                    game[key] = "-";
+                }
 
                 gameTable =
                     gameTable +
                     `<tr><th>${key}</th>` +
-                    `<td>${game[key]}</td></tr>`
+                    `<td>${game[key]}</td></tr>`;
             }
             gameTable = gameTable + "</table>";
 
             /* Return both the game and the table we made. Note that this gets
                 its own table function, because we want this one to be vertical
                 */
-            return [ game, gameTable ];
-        } catch(error) {
-	    throw new Error("Failed to format game with id " + gameId);
+            return [game, gameTable];
+        } catch (error) {
+            throw new Error("Failed to format game with id " + gameId);
         }
     }
 
@@ -127,15 +126,15 @@ class cfbRequests {
 
         /* Header and HTML step. Order matters, these match up by index */
         const headers = ["Week", "Season Type",
-                         "Start Date", "Home Team",
-                         "Home Conference", "Home Score",
-                         "Away Team", "Away Conference",
-                         "Away Score", "ID"];
+            "Start Date", "Home Team",
+            "Home Conference", "Home Score",
+            "Away Team", "Away Conference",
+            "Away Score", "ID"];
         const internalHeaders = ['week', 'seasonType',
-                                 'startDate', 'homeTeam',
-                                 'homeConference', 'homeScore',
-                                 'awayTeam', 'awayConference',
-                                 'awayScore', "id"];
+            'startDate', 'homeTeam',
+            'homeConference', 'homeScore',
+            'awayTeam', 'awayConference',
+            'awayScore', "id"];
 
         try {
             /* get the data from cfb.js */
@@ -154,7 +153,7 @@ class cfbRequests {
                 game["startDate"] = this.isoToHuman(game["startDate"]);
 
                 /* Add hyperlinks instead of a raw ID */
-                game["id"] = this.idToHyperlink(game["id"], year)
+                game["id"] = this.idToHyperlink(game["id"], year);
             }
 
             const table = this.createTable(headers, internalHeaders, rawData);
@@ -166,31 +165,31 @@ class cfbRequests {
         }
     }
 
-        /**
-     * Method to get the season of a team (I know it's the wrong endpoint, it's
-     * on my to-do list. It also is an endpoint that consistantly works, so...
-     *
-     * It goes from querying cfb.js, to formatting cfb.js, to creating an
-     * HTML-style table
-     *
-     * @param {number} year - the year we want to get
-     * @param {string} team - the name of the team we want to get
-     * @returns {string} - returns an HTML-formatted table
-     */
+    /**
+ * Method to get the season of a team (I know it's the wrong endpoint, it's
+ * on my to-do list. It also is an endpoint that consistantly works, so...
+ *
+ * It goes from querying cfb.js, to formatting cfb.js, to creating an
+ * HTML-style table
+ *
+ * @param {number} year - the year we want to get
+ * @param {string} team - the name of the team we want to get
+ * @returns {string} - returns an HTML-formatted table
+ */
     async getMatches(year, team) {
         const opts = { year: year, team: team, seasonType: "both" };
 
         try {
             /* get the data from cfb.js */
-            const baseurl= "https://api.collegefootballdata.com/"
-            const reqHeaders= new Headers();
+            const baseurl = "https://api.collegefootballdata.com/";
+            const reqHeaders = new Headers();
             reqHeaders.set("accept", "application/json");
             reqHeaders.set("Authorization", this.ApiKeyAuth.apiKey);
 
-            const req= await fetch(
-                `${baseurl}games?year=2023&team=${team}`, {headers: reqHeaders});
+            const req = await fetch(
+                `${baseurl}games?year=2023&team=${team}`, { headers: reqHeaders });
 
-            const rawData= await req.json();
+            const rawData = await req.json();
 
             /* What did we get? */
             console.log(year, team, "Season: Got", rawData.length);
@@ -205,26 +204,26 @@ class cfbRequests {
                 game["startDate"] = this.isoToHuman(game["startDate"]);
 
                 /* Add hyperlinks instead of a raw ID */
-                game["id"] = this.idToHyperlink(game["id"], year)
+                game["id"] = this.idToHyperlink(game["id"], year);
 
                 /* Make spaces Non-breaking */
-                game["homeTeam"]= game["homeTeam"].replaceAll(" ", "&nbsp;");
-                game["awayTeam"]= game["awayTeam"].replaceAll(" ", "&nbsp;");
+                game["homeTeam"] = game["homeTeam"].replaceAll(" ", "&nbsp;");
+                game["awayTeam"] = game["awayTeam"].replaceAll(" ", "&nbsp;");
 
                 if (game["homeTeam"] === team) {
                     if (game["homePoints"] > game["awayPoints"])
-                        game["outcome"]= "Victory";
+                        game["outcome"] = "Victory";
                     else if (game["homePoints"] < game["awayPoints"])
-                        game["outcome"]= "Defeat";
+                        game["outcome"] = "Defeat";
                     else
-                        game["outcome"]= "Tie";
+                        game["outcome"] = "Tie";
                 } else {
                     if (game["homePoints"] > game["awayPoints"])
-                        game["outcome"]= "Defeat";
+                        game["outcome"] = "Defeat";
                     else if (game["homePoints"] < game["awayPoints"])
-                        game["outcome"]= "Victory";
+                        game["outcome"] = "Victory";
                     else
-                        game["outcome"]= "Tie";
+                        game["outcome"] = "Tie";
                 }
             }
 
@@ -239,16 +238,16 @@ class cfbRequests {
 
     async getTeam(conference) {
         /* get the data from cfb.js */
-        const baseurl= "https://api.collegefootballdata.com/"
-        const reqHeaders= new Headers();
+        const baseurl = "https://api.collegefootballdata.com/";
+        const reqHeaders = new Headers();
         reqHeaders.set("accept", "application/json");
         reqHeaders.set("Authorization", this.ApiKeyAuth.apiKey);
 
         console.log("Our conference is: " + conference);
-        const req= await fetch(
-            `${baseurl}teams?conference=${'B1G'}`, {headers: reqHeaders});
+        const req = await fetch(
+            `${baseurl}teams?conference=${'B1G'}`, { headers: reqHeaders });
 
-        const rawData= await req.json();
+        const rawData = await req.json();
 
         return rawData;
     }
@@ -281,7 +280,7 @@ class cfbRequests {
      * strings
      */
     async getMatchups(team1, team2) {
-        const opts = { 'minYear': 1869, 'maxYear': 2024 }
+        const opts = { 'minYear': 1869, 'maxYear': 2024 };
         const headers = [
             "Season", "Week",
             "Game Type", "Date",
@@ -307,7 +306,7 @@ class cfbRequests {
 
             /* What did we get? */
             console.log(`${team1} vs ${team2}: Got`,
-                        rawData["games"].length
+                rawData["games"].length
             );
 
             rawData["games"].sort(
@@ -326,7 +325,7 @@ class cfbRequests {
                     game["neutralSite"] = "Yes";
                 }
                 else if (game["neutralSite"] === false ||
-                         game["neutralSite"] === "No") {
+                    game["neutralSite"] === "No") {
                     game["neutralSite"] = "No";
                 }
                 else
@@ -346,10 +345,10 @@ class cfbRequests {
 
             let summary = `${team1} vs. ${team2}`;
             let record = "Overall Record: " +
-                         `${rawData.team1Wins} (${team1}) - ` +
-                         `${rawData.team2Wins} (${team2})`
+                `${rawData.team1Wins} (${team1}) - ` +
+                `${rawData.team2Wins} (${team2})`;
 
-                   return [table, summary, record];
+            return [table, summary, record];
         }
 
         catch (error) {
@@ -378,7 +377,7 @@ class cfbRequests {
         /* format the date */
         const formattedDate = this.dateFormatter.format(date);
 
-        return formattedDate
+        return formattedDate;
     }
 
     /**
@@ -417,10 +416,10 @@ class cfbRequests {
             (acc, header) =>
                 acc + "<th>" + header + "</th>",
             ""
-        )
+        );
         const strHead = "<thead><tr>" + strInnerHead + "</tr></thead>";
 
-        let strBody = "<tbody>"
+        let strBody = "<tbody>";
         for (let game of data) {
             strBody = strBody + "<tr>";
             for (let header of internalHeaders) {

@@ -1,0 +1,54 @@
+src/
+├── app.js
+├── server.js
+├── models/
+│   └── user.model.js
+├── services/
+│   └── user.service.js
+├── controllers/
+│   ├── api/
+│   │   └── user.api.controller.js
+│   └── web/
+│       └── user.web.controller.js
+├── routes/
+│   ├── api/
+│   │   └── user.routes.js
+│   ├── web/
+│   │   └── user.routes.js
+│   └── index.js
+└── views/
+    └── users/
+        ├── list.ejs
+        └── detail.ejs
+
+
+another one
+src/
+├── app.js              # express setup, middleware
+├── server.js           # http bootstrap
+├── routes/
+│   ├── web.js          # HTML routes
+│   └── api.js          # JSON routes (optional)
+├── controllers/
+│   ├── PageController.js
+│   └── UserController.js
+├── services/
+│   └── UserService.js
+├── models/
+│   └── User.js
+├── views/
+│   ├── layouts/
+│   │   └── main.ejs
+│   ├── pages/
+│   │   ├── home.ejs
+│   │   └── profile.ejs
+│   ├── partials/
+│   │   ├── header.ejs
+│   │   └── footer.ejs
+│   └── errors/
+│       └── 404.ejs
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── config/
