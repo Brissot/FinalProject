@@ -54,6 +54,7 @@ form {
 
 input {
     font-size: 2rem;
+    max-width: 100%;
 }
 
 button {
@@ -64,9 +65,10 @@ button {
     background-color: white;
     border: 1px solid black;
     margin: auto;
-    width: 80%;
+    max-width: 80%;
     text-align: center;
-    opacity: 96%
+    opacity: 96%;
+    overflow-x: scroll;
 }
 
 mark {
@@ -99,6 +101,10 @@ table {
         margin: 0;
         padding: 0;
         margin-bottom: 1rem;
+    }
+
+    .results {
+        max-width: 98%;
     }
 
     form {
