@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "cfb.js": "^4.3.2",
-    "dotenv": "^16.4.5",
-    "ejs": "^3.1.10",
-    "express": "^5.0.0",
-    "mongodb": "^6.6.2"
+    "dotenv": "^17.3.1",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "mongodb": "^7.1.0"
   }
 }
