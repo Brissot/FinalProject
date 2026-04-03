@@ -3,8 +3,7 @@
  * stats (through the cfb.js API), and formatting the college football stats
  * into HTML
  */
-const cfbAPI = require('cfb.js');
-
+import cfbAPI from "cfb.js";
 
 /**
  * The main class that handles getting from cfb.js and formatting it in a nice
@@ -348,4 +347,4 @@ class cfbRequests {
     }
 }
 
-module.exports = { cfbRequests };
+export default cfbRequests;

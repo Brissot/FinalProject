@@ -1,14 +1,7 @@
-/* Check .env Environmental Variables */
-const path = require("path");
-const bodyParser = require("body-parser");
-require("dotenv").config({
-    path: path.resolve(__dirname, '.env')
-});
+import { MongoClient, ServerApiVersion } from "mongodb";
+import express from "express";
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const express = require("express"); /* Accessing express module */
-
-const cfbRequests = require("./cfbRequests");
+import cfbRequests from "./cfbRequests.js";
 
 /* Check Arguments */
 if (process.argv.length !== 3) {
@@ -33,7 +26,7 @@ const uri = "mongodb+srv://" +
     "@sid-su.eczia3i.mongodb.net/" +
     "?retryWrites=true&w=majority&appName=Sid-Su";
 
-let cfbRadio = new cfbRequests.cfbRequests(apiKey);
+let cfbRadio = new cfbRequests(apiKey);
 
 /*
 express stuff
@@ -44,7 +37,7 @@ const app = express(); /* app is a request handler function */
 app.use(
     '/favicon.ico',
     express.static(
-        "media/american-football-transparent.png", {  maxAge: '30d' }
+        "media/american-football-transparent.png", { maxAge: '30d' }
     )
 );
 
@@ -54,11 +47,11 @@ app.use(express.static('css', { maxAge: '30d' }));
 /* make the images and video available */
 app.use("/media", express.static("media", { maxAge: '30d' }));
 
-
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 /* directory where templates will reside */
-app.set("views", path.resolve(__dirname, "templates"));
+app.set("views", "templates");
 /* view/templating engine */
 app.set("view engine", "ejs");
 
@@ -80,17 +73,18 @@ app.post("/teamStats", async (request, response) => {
 
     const table = await cfbRadio.getBets(year, team);
 
-    let variables = {
+    const variables = {
         team: team,
         year: year,
         stats: table,
         summary: `${team} ${year} Season`
     };
-    request = {
+
+    const searchSerial = {
         name: `Stats for ${team} in ${year}`,
         data: variables.stats
     };
-    await addSearch(client, databaseAndCollection, request);
+    await addSearch(client, databaseAndCollection, searchSerial);
     response.render("teamStatsResults", variables);
 });
 
@@ -101,7 +95,7 @@ app.get("/teamHistory", (request, response) => {
 app.post("/teamHistory", async (request, response) => {
     let { team1, team2 } = request.body;
 
-    matchupsInfo = await cfbRadio.getMatchups(team1, team2);
+    const matchupsInfo = await cfbRadio.getMatchups(team1, team2);
     const [table, summary, record] = matchupsInfo;
 
 
@@ -120,7 +114,7 @@ app.post("/teamHistory", async (request, response) => {
 });
 
 app.get("/searchHistory", async (request, response) => {
-    variables = {
+    const variables = {
         searches: await getSearchHistory(client, databaseAndCollection)
     };
     response.render("searchHistory", variables);
@@ -128,7 +122,7 @@ app.get("/searchHistory", async (request, response) => {
 
 app.post("/searchHistory", async (request, response) => {
     await clearSearchHistory(client, databaseAndCollection);
-    variables = {
+    const variables = {
         searches: ""
     };
     response.render("searchHistory", variables);
@@ -139,33 +133,33 @@ app.get("/game", async (request, response, next) => {
 
     if (year && id) {
         /* game. singular. object. */
-	const [ game, gameTable ] = await cfbRadio.getGame(year, id);
+        const [game, gameTable] = await cfbRadio.getGame(year, id);
 
         variables = {
-	    id: id,
-	    homeTeam: game["homeTeam"],
-	    awayTeam: game["awayTeam"],
-	    year: game["season"],
-	    summary: "Game Summary",
-	    stats: gameTable
+            id: id,
+            homeTeam: game["homeTeam"],
+            awayTeam: game["awayTeam"],
+            year: game["season"],
+            summary: "Game Summary",
+            stats: gameTable
         };
         response.render("game", variables);
     }
     else {
-        response.send("Required year or id not sent")
+        response.send("Required year or id not sent");
     }
 });
 
 /* A nice error page */
 app.use((error, request, response, next) => {
     /* internally log the stack trace */
-    console.error(error.stack)
+    console.error(error.stack);
 
-    variables = {
-	message: error.message
+    const variables = {
+        message: error.message
     };
     response.status(500).render("error", variables);
-})
+});
 
 /* start express :) */
 app.listen(portNumber, (err) => {
@@ -214,7 +208,7 @@ const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
-        deprecationErrors: true,
+        deprecationErrors: true
     }
 });
 
@@ -241,7 +235,7 @@ async function insertApplicant(client, applicant) {
 
         const result = await collection.insertOne(applicant);
 
-        return result
+        return result;
     }
     finally {
         // Ensures that the client will close when you finish/error
@@ -268,8 +262,8 @@ async function getSearchHistory(client, databaseAndCollection) {
     let searchResults = "";
     for (let r of result) {
         searchResults = `<div class="results"><h2>${r.name}</h2>` +
-                        `<br><p>${r.data}</p>"</div>"` +
-                        searchResults;
+            `<br><p>${r.data}</p>"</div>"` +
+            searchResults;
     }
 
     return searchResults;
